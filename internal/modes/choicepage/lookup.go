@@ -6,9 +6,9 @@
 package choicepage
 
 import (
-   "dntui/internal/views"
-   "dntui/internal/config"
-   ds "dntui/internal/datastructures"
+   "waelder/internal/views"
+   "waelder/internal/config"
+   ds "waelder/internal/datastructures"
 )
 
 // Struct to hold complete specification of a choice page

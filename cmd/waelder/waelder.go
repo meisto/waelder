@@ -10,8 +10,8 @@ import (
    "os"
    tea "github.com/charmbracelet/bubbletea"
 
-   root "dntui/internal"
-   "dntui/internal/io"
+   root "waelder/internal"
+   "waelder/internal/io"
 )
 
 

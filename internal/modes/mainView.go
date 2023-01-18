@@ -13,13 +13,13 @@ import(
    "github.com/charmbracelet/bubbles/progress"
    "github.com/charmbracelet/lipgloss"
 
-   "dntui/internal/config"
-   "dntui/internal/views"
-   ds "dntui/internal/datastructures"
+   "waelder/internal/config"
+   "waelder/internal/views"
+   ds "waelder/internal/datastructures"
 )
 
 // View method
-func mainView(
+func MainView(
    d ds.Data,
    windowHeight int,
    windowWidth int,
@@ -109,5 +109,5 @@ func formatStatusLine(content []string, style lipgloss.Style) string {
    return strings.Join(content, style.Render(" "))
 }
 
-func mainUpdate(msg tea.KeyMsg) {
+func MainUpdate(msg tea.KeyMsg) {
 }

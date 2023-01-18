@@ -9,13 +9,13 @@ import(
 
    // tea "github.com/charmbracelet/bubbletea"
 
-   // "dntui/internal/language"
-   "dntui/internal/views"
+   // "waelder/internal/language"
+   "waelder/internal/views"
 )
 
 
 // View method
-func loadingView(
+func LoadingView(
    windowHeight   int,
    windowWidth    int,
 ) string {
@@ -27,4 +27,4 @@ func loadingView(
 }
 
 
-// func loadingUpdate(m *model, msg tea.KeyMsg) { }
+// func LoadingUpdate(m *model, msg tea.KeyMsg) { }

@@ -12,7 +12,7 @@ import (
    "io/ioutil"
    "log"
 
-   cm "dntui/internal/datastructures"
+   cm "waelder/internal/datastructures"
 )
 
 func LoadCharacterFromFile(filePath string) cm.Character {

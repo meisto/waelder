@@ -4,7 +4,14 @@
 // Description: This package is mostly here to circumvent an input cycle 
 // when modifying modi from subpages.
 // ======================================================================
-package modi
+package modes
+
+import (
+   ds "waelder/internal/datastructures"
+
+   tea "github.com/charmbracelet/bubbletea"
+)
+
 
 type Mode int64
 const (
@@ -15,5 +22,19 @@ const (
    ChoiceMode  Mode = iota
 )
 
+type ModeHandle struct {
+   Update   func(*ds.Data, tea.KeyMsg)
+   View     func(ds.Data, int, int) []string
+}
 
+
+/* 
+var ModeLookup map[Mode]ModeHandle = map[Mode]ModeHandle {
+   ActiveMode: {
+      Update:  ActiveUpdate,
+      View:    ActiveView,
+   },
+}
+
+*/
 

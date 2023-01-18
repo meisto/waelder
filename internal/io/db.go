@@ -13,12 +13,12 @@ import (
    "database/sql"
    _ "github.com/mattn/go-sqlite3"
 
-   "dntui/internal/io/queries"
-   cm "dntui/internal/datastructures"
+   "waelder/internal/io/queries"
+   cm "waelder/internal/datastructures"
 )
 
 func GetDatabaseHandle() *sql.DB {
-   dbPath := os.Getenv("dntui_db_path")
+   dbPath := os.Getenv("waelder_db_path")
    if dbPath == "" {
       log.Fatal("Could not find database path in environment")
    }

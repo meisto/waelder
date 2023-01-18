@@ -14,12 +14,12 @@ import (
    "github.com/charmbracelet/bubbles/progress"
    "github.com/charmbracelet/bubbles/textinput"
 
-   "dntui/internal/config"
-   "dntui/internal/io"
-   "dntui/internal/language"
-   ds "dntui/internal/datastructures"
-   cp "dntui/internal/modes/choicepage"
-   modi "dntui/internal/modes/modi"
+   "waelder/internal/config"
+   "waelder/internal/io"
+   "waelder/internal/language"
+   ds "waelder/internal/datastructures"
+   "waelder/internal/modes"
+   "waelder/internal/layouts"
 )
 
 type model struct {
@@ -31,8 +31,12 @@ type model struct {
    windowHeight   int
    windowWidth    int
 
-   previousMode   modi.Mode
-   mode           modi.Mode
+   layout         layouts.Layout
+   previousMode   modes.Mode
+   mode           modes.Mode
+
+   header         string
+   footer         string
 }
 
 
@@ -44,7 +48,7 @@ func InitialModel(dbHandle *sql.DB) model {
    ti.Width = 10
    ti.Prompt = ""
    
-   root := "/home/tobias/Documents/code/golang/src/dntui"
+   root := "/home/tobias/Documents/code/golang/src/waelder"
 
 
    // TODO: Replace the defaults with a loading procedure
@@ -82,13 +86,19 @@ func InitialModel(dbHandle *sql.DB) model {
          },
       },
 
-      mode:          modi.StartMode,
+      layout:        layouts.TwoThirdsHorizontalSplit,
+
+      mode:          modes.StartMode,
+      header:        "Charakter\n",
+
+      footer: config.StyleDead.Render(strings.Join(language.GetEn().HelpBar, " | ")) +
+      "\n" + ti.View(),
    }
 }
 
 func (m model) Init() tea.Cmd { return tea.EnterAltScreen }
 
-func (m *model) changeMode(mode modi.Mode) {
+func (m *model) changeMode(mode modes.Mode) {
    m.previousMode = m.mode
    m.mode = mode
 }
@@ -102,36 +112,39 @@ func (m *model) switchModes() {
 
 func (m model) View() string {
 
-   // Capture StartMode
-   if m.mode == modi.StartMode {return "Welcome"}
+   // Capture StartMode early
+   if m.mode == modes.StartMode {return "Welcome"}
 
    
    // Header
    header := "Charakter\n"
 
    // Footer
-   var footer string
-   lang := language.GetEn()
-   helpView := config.StyleDead.Render(strings.Join(lang.HelpBar, " | "))
-   footer += helpView + "\n" + m.TextInput.View()
+   footer := 
+      config.StyleDead.Render(strings.Join(language.GetEn().HelpBar, " | ")) +
+      "\n" + m.TextInput.View()
 
    // Main Content
    var body string
-   wh := m.windowHeight - strings.Count(header, "\n") - strings.Count(footer, "\n") - 1
+   wh := m.windowHeight - 
+      strings.Count(header, "\n") -
+      strings.Count(footer, "\n") - 1
+
+   /*
    switch m.mode{
-      case modi.LoadingMode :
-         body = loadingView(
+      case modes.LoadingMode :
+         body = modes.LoadingView(
             &m,
             wh,
             m.windowWidth,
          )
-      case modi.ActiveMode:
-         body = activeView(
+      case modes.ActiveMode:
+         body = modes.ActiveView(
             m.Data,
             wh,
             m.windowWidth,
          )
-      case modi.ChoiceMode:
+      case modes.ChoiceMode:
          body = cp.ChoiceView(
             m.Data,
             wh,
@@ -140,12 +153,17 @@ func (m model) View() string {
       default:
          return "ERROR 404: page not found ;)\nNeed to add to root page."
    }
+   */
+   body = m.layout.Display(m.Data)
 
+
+   /*
    // Cut off body if it is too long
    if strings.Count(body, "\n") > wh - 1 {
       t := strings.Split(body, "\n")
       body = strings.Join(t[len(t) - wh - 1:], "\n")
    }
+   */
 
    // Line count
    lc := strings.Count(body, "\n")
@@ -158,7 +176,7 @@ func (m model) View() string {
       padding = strings.Repeat("\n", c)
    }
 
-   return header + body + padding + footer
+   return m.header + body + padding + m.footer
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -171,10 +189,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
       m.windowWidth  = msg.Width
 
       // Only exit StartMode once the first resize message is received.
-      if m.mode == modi.StartMode {
+      if m.mode == modes.StartMode {
+         m.layout = m.layout.Resize(m.windowHeight - 3, m.windowWidth)
 
-         m.changeMode(modi.ChoiceMode)}
-         m.previousMode = modi.ActiveMode // Stop from jumping back to start
+         m.changeMode(modes.ActiveMode)}
+         m.previousMode = modes.ActiveMode // Stop from jumping back to start
    
    case tea.KeyMsg:
       if !m.TextInput.Focused() {
@@ -190,19 +209,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
          case "tab":
             // Create custom order
             switch m.mode {
-               case modi.LoadingMode:  m.changeMode(modi.LoadingMode)
-               case modi.MainMode:     m.changeMode(modi.ActiveMode)
-               case modi.ActiveMode:   m.changeMode(modi.MainMode)
+               case modes.LoadingMode:  m.changeMode(modes.LoadingMode)
+               case modes.MainMode:     m.changeMode(modes.ActiveMode)
+               case modes.ActiveMode:   m.changeMode(modes.MainMode)
             }
 
          default: // Pass message on to other views
 
             // Other mode
             switch m.mode {
-               case modi.LoadingMode:  loadingUpdate(&m.Data, msg)
-               case modi.MainMode:     mainUpdate(&m.Data, msg)
-               case modi.ActiveMode:   activeUpdate(&m.Data, msg)
-               case modi.ChoiceMode:   cp.ChoiceUpdate(&m.Data, msg, m.switchModes)
+               case modes.LoadingMode:  // modes.LoadingUpdate(&m.Data, msg)
+               case modes.MainMode:     // modes.MainUpdate(&m.Data, msg)
+               case modes.ActiveMode:   modes.ActiveUpdate(&m.Data, msg)
+               case modes.ChoiceMode:   // cp.ChoiceUpdate(&m.Data, msg)
             }
          }
       } else {

@@ -13,7 +13,7 @@ import (
 
    "github.com/charmbracelet/lipgloss"
 
-   "dntui/internal/config"
+   "waelder/internal/config"
 )
 
 

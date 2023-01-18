@@ -9,9 +9,9 @@ import (
    tea "github.com/charmbracelet/bubbletea"
    "github.com/charmbracelet/lipgloss"
 
-   // "dntui/internal/language"
-   "dntui/internal/views"
-   ds "dntui/internal/datastructures"
+   // "waelder/internal/language"
+   "waelder/internal/views"
+   ds "waelder/internal/datastructures"
 )
 
 type selection []selectionElement

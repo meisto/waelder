@@ -11,19 +11,22 @@ import(
 
    tea "github.com/charmbracelet/bubbletea"
 
-   // "dntui/internal/language"
-   ds "dntui/internal/datastructures"
-   "dntui/internal/views"
-   "dntui/internal/config"
+   // "waelder/internal/language"
+   ds "waelder/internal/datastructures"
+   "waelder/internal/views"
+   "waelder/internal/config"
 )
 
 
 // View method
-func activeView(
+func ActiveView(
    d ds.Data,
    windowHeight int,
    windowWidth int,
-) string {
+) []string{
+   var res []string = make([]string, windowHeight)
+   var runningIndex int = len(res) - 1
+
    // Generate String representing the current round
    s :=  formatBlock(
       d.CombatLog.Current.Done,
@@ -34,23 +37,27 @@ func activeView(
       true,
    ) 
 
-   // Print trace of previousrounds
-   linecount := strings.Count(s, "\n") + 1 // + 1 for bottom line
-   for i:= len(d.CombatLog.PreviousRounds) - 1; i >= 0 && linecount <= windowHeight; i-- {
+   // Uncomment for bar under layout
+   // res[runningIndex] = strings.Repeat("─", windowWidth)
+   // runningIndex--
+
+   for i := len(s) - 1; i >= 0; i-- {
+      res[runningIndex] = s[i]
+      runningIndex--
+   }
+
+   for i:= len(d.CombatLog.PreviousRounds) - 1; i >= 0 && runningIndex >= 0; i-- {
       r := d.CombatLog.PreviousRounds[i]
 
       b := formatBlockOld(r.TurnSequence, windowWidth, r.RoundNumber, false)
-      linecount += strings.Count(b, "\n")
+      for j := len(b) - 1; j >= 0 && runningIndex >= 0; j-- {
+         res[runningIndex] = b[j]
+         runningIndex--
 
-      s = b + s
+      }
    }
-   s += strings.Repeat("─", windowWidth) + "\n"
 
-
-
-
-
-   return s
+   return res
 }
 
 
@@ -89,8 +96,7 @@ func drawLine(
       health,
       healthNumeral,
       f("🛡 1011"),
-   },
-   separator) + "\n"
+   }, separator)
 }
 
 func formatBlock(
@@ -100,22 +106,28 @@ func formatBlock(
    windowWidth    int,
    roundNumber    int,
    isCurrentRound bool,
-) string {
-   var s string
-   // Iterate over our choices
-   
-   prefix := "─┤" + config.StyleDarkRedBg.Render(fmt.Sprintf(" Round %d ", roundNumber)) + "├"
+) []string {
+   var s []string = make([]string, len(done) + len(pending) + 1 + 1)
+   runningIndex := 1
+ 
+   overlineLabel := fmt.Sprintf(" Round %d ", roundNumber)
 
-   s += prefix + strings.Repeat("─", windowWidth - len(prefix)) 
-   s += "\n"
+   s[0]= "─┤" + config.StyleDarkRedBg.Render(overlineLabel) + "├"
+   s[0] += strings.Repeat("─", windowWidth - (len(overlineLabel) + 3)) 
 
    for i := 0; i < len(done); i++ {
-      s += drawLine(done[i], false);
+      s[runningIndex] = drawLine(done[i], false)
+      runningIndex += 1
    }
-   s += drawLine(active, true);
+
+   s[runningIndex] = drawLine(active, true);
+   runningIndex += 1
+
    for i := 0; i < len(pending); i++ {
-      s += drawLine(pending[i], false);
+      s[runningIndex] = drawLine(pending[i], false)
+      runningIndex += 1
    }
+
    return s
 }
 func formatBlockOld(
@@ -123,22 +135,20 @@ func formatBlockOld(
    windowWidth    int,
    roundNumber    int,
    isCurrentRound bool,
-) string  {
-   var s string
+) []string  {
+   var s []string = make([]string, len(done) + 1)
    // Iterate over our choices
    
-   prefix := fmt.Sprintf("─┤ Round %d ├", roundNumber)
-
-   s += prefix + strings.Repeat("─", windowWidth - len(prefix)) 
-   s += "\n"
+   overlineLabel := fmt.Sprintf("-┤ Round %d ├", roundNumber)
+   s[0] = overlineLabel + strings.Repeat("─", windowWidth - len(overlineLabel) + 4)
 
    for i := 0; i < len(done); i++ {
-      s += drawLine(done[i], false);
+      s[i+1] = drawLine(done[i], false);
    }
    return s
 }
 
-func activeUpdate(data *ds.Data, msg tea.KeyMsg) {
+func ActiveUpdate(data *ds.Data, msg tea.KeyMsg) {
    switch msg.String(){
       case "n":
 
