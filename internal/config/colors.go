@@ -47,5 +47,6 @@ var (
       Background(lipgloss.Color("#CCCCCC"))
 
    StyleGreen = lipgloss.NewStyle().Foreground(lipgloss.Color("#009900"))
+   StyleDarkRedBg = lipgloss.NewStyle().Background(lipgloss.Color("#990000"))
 )
 

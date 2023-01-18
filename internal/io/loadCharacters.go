@@ -7,42 +7,29 @@
 package io
 
 import (
-   // "encoding/json"
+   "encoding/json"
    "fmt"
-   "os"
+   "io/ioutil"
+   "log"
+
+   cm "dntui/internal/datastructures"
 )
 
-func GetFiles(dirPath string) []string {
+func LoadCharacterFromFile(filePath string) cm.Character {
 
-   _, err := os.Stat(dirPath)
-
-   if os.IsNotExist(err) {
-      fmt.Fprintf(os.Stderr, "Error when trying to open file '" + dirPath + "'")
-      return []string{}
-   }
-
-   f, err := os.Open(dirPath)
-
-   files, err := f.ReadDir(0)
-   
-   /*
-   readFile, err := os.Open(filePath)
+   data, err := ioutil.ReadFile(filePath)
    if err != nil {
-      fmt.Fprintf(os.Stderr, "Error when trying to open file '" + filePath + "'")
-      return []string{}
+      log.Print(fmt.Sprintf("[WARNING] Could not find file '%s'.", filePath))
+      log.Fatal(err)
    }
 
-   readFile.Chdir
-   */
+   var char cm.Character
 
-   res := []string{}
-   for _, x := range(files) {
-      res = append(res, x.Name())
-   } 
+   err = json.Unmarshal(data, &char)
+   if err != nil {log.Fatal(err)}
 
 
-   return res
-
+   return char
 }
 
 // func loadParty()

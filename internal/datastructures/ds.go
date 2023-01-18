@@ -3,16 +3,26 @@
 // Creation Date: Sun 15 Jan 2023 11:45:05 PM CET
 // Description: -
 // ======================================================================
-
-package model
+package datastructures
 
 import (
    "sort"
-
-   c "dntui/internal/model/charactermodel"
 )
 
-type Log struct {
+// Root data struct
+type Data struct {
+   SQLitePath        string
+
+   Players           []Character
+   Allies            []Character
+   Enemies           []Character
+   Neutrals          []Character
+
+   CombatLog         CombatLog
+}
+
+// Struct to hold a combat log
+type CombatLog struct {
    initialized    bool
    PreviousRounds []Round
    Current        CurrentRound
@@ -20,14 +30,14 @@ type Log struct {
 
 type Round struct {
    RoundNumber    int
-   TurnSequence   []c.Character
+   TurnSequence   []Character
 }
 
 type CurrentRound struct {
    RoundNumber       int
-   ActiveCharacter   c.Character
-   Done              []c.Character
-   Pending           []c.Character
+   ActiveCharacter   Character
+   Done              []Character
+   Pending           []Character
 }
 
 func (round CurrentRound) IsDone() bool { return len(round.Pending) == 0 }
@@ -37,7 +47,7 @@ func (round CurrentRound) IsDone() bool { return len(round.Pending) == 0 }
 
    Returns true if a state transition was done, false if round is done
 **/
-func (round CurrentRound) Step() bool{
+func (round *CurrentRound) Step() bool{
 
    // Break
    if round.IsDone() {return false}
@@ -45,7 +55,9 @@ func (round CurrentRound) Step() bool{
    round.Done = append(round.Done, round.ActiveCharacter)
 
    // Sort by initiative
-   comp := func(i,j int) bool {return round.Pending[i].Initiative > round.Pending[j].Initiative}
+   comp := func(i,j int) bool {
+      return round.Pending[i].Stats.Initiative > round.Pending[j].Stats.Initiative
+   }
    sort.Slice(round.Pending, comp)
 
    round.ActiveCharacter = round.Pending[0]
@@ -61,37 +73,40 @@ func (round CurrentRound) Step() bool{
 func (round CurrentRound) GetNextRound() (Round, CurrentRound) {
    a := Round{
       RoundNumber:   round.RoundNumber,
-      TurnSequence:  round.Done,
+      TurnSequence:  append(round.Done, round.ActiveCharacter),
    }
 
-   p := round.Pending
 
    // Sort by initiative
-   sort.Slice(p, func(i,j int) bool {
-      return round.Pending[i].Initiative > round.Pending[j].Initiative
+   sort.Slice(round.Done, func(i,j int) bool {
+      return round.Done[i].Stats.Initiative > round.Done[j].Stats.Initiative
    })
 
+
+   d := append(round.Done, round.ActiveCharacter)
    b := CurrentRound {
       RoundNumber:      round.RoundNumber + 1,
-      ActiveCharacter:  p[0],
-      Done:             []c.Character{},
-      Pending:          p[1:],
+      ActiveCharacter:  d[0],
+      Done:             []Character{},
+      Pending:          d[1:],
    }
 
    return a, b
 }
 
-func CreateRound(chars []c.Character) CurrentRound {
+func CreateRound(chars []Character) CurrentRound {
    // Sort by initiative
    sort.Slice(chars, func(i,j int) bool {
-      return chars[i].Initiative > chars[j].Initiative
+      return chars[i].Stats.Initiative > chars[j].Stats.Initiative
    })
-   
 
+   p := []Character{}
+   if len(chars) > 1 {p = chars[1:]}
+   
    return CurrentRound {
       RoundNumber:      1,
       ActiveCharacter:  chars[0],
-      Done:             []c.Character{},
-      Pending:          chars[1:],
+      Done:             []Character{},
+      Pending:          p,
    }
 }

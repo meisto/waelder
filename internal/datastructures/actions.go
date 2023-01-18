@@ -3,7 +3,7 @@
 // Creation Date: Mon 16 Jan 2023 01:13:50 AM CET
 // Description: -
 // ======================================================================
-package charactermodel
+package datastructures
 
 
 type MeeleAttack struct {

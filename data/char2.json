@@ -1,0 +1,12 @@
+{
+   "name": "Ted",
+   "affiliation": "player",
+   "race": "dwarf",
+   "subrace": "hilldwarf",
+   "class": "bard",
+   "Stats": {
+      "Hp": 17,
+      "Max_hp": 20,
+      "Initiative": 2
+   }
+}

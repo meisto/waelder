@@ -1,0 +1,12 @@
+{
+   "name": "Dundar the Strong",
+   "affiliation": "player",
+   "race": "dwarf",
+   "subrace": "mountaindwarf",
+   "class": "fighter",
+   "Stats": {
+      "Hp": 20,
+      "Max_hp": 20,
+      "Initiative": 200
+   }
+}
