@@ -11,8 +11,6 @@ import (
 
 // Root data struct
 type Data struct {
-   SQLitePath        string
-
    Players           []Character
    Allies            []Character
    Enemies           []Character
@@ -23,7 +21,7 @@ type Data struct {
 
 // Struct to hold a combat log
 type CombatLog struct {
-   initialized    bool
+   Actions        []Action
    PreviousRounds []Round
    Current        CurrentRound
 }
@@ -35,8 +33,8 @@ type Round struct {
 
 type CurrentRound struct {
    RoundNumber       int
-   ActiveCharacter   Character
    Done              []Character
+   ActiveCharacter   Character
    Pending           []Character
 }
 

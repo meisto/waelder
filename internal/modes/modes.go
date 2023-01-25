@@ -7,34 +7,34 @@
 package modes
 
 import (
-   ds "waelder/internal/datastructures"
+   "github.com/muesli/termenv"
 
-   tea "github.com/charmbracelet/bubbletea"
+   ds "waelder/internal/datastructures"
 )
 
 
 type Mode int64
 const (
    StartMode   Mode = iota
+   ActiveMode  Mode = iota
+   ActionMode  Mode = iota
+   
+
    LoadingMode Mode = iota
    MainMode    Mode = iota
-   ActiveMode  Mode = iota
    ChoiceMode  Mode = iota
 )
 
 type ModeHandle struct {
-   Update   func(*ds.Data, tea.KeyMsg)
-   View     func(ds.Data, int, int) []string
+   Update   func(*ds.Data, string)
+   View     func(*termenv.Output, ds.Data, int, int, int, int)
 }
 
-
-/* 
 var ModeLookup map[Mode]ModeHandle = map[Mode]ModeHandle {
    ActiveMode: {
       Update:  ActiveUpdate,
       View:    ActiveView,
    },
+   ActionMode: actionModeHandle,
 }
-
-*/
 

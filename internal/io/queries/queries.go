@@ -20,7 +20,7 @@ const (
          name TEXT PRIMARY KEY,
          shortDesc TEXT NOT NULL,
          race TEXT,
-         alignment TEXT,
+         alignment INTEGER,
          descPath TEXT
       );
    `

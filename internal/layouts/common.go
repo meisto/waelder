@@ -3,110 +3,25 @@
 // Creation Date: Sun 15 Jan 2023 10:39:05 PM CET
 // Description: -
 // ======================================================================
-package views
+package layouts
 
 import (
    "log"
-   "math"
    "fmt"
    "strings"
 
-   "github.com/charmbracelet/lipgloss"
 
    "waelder/internal/config"
+   "waelder/internal/renderer"
 )
 
 
-func FormatHealthString(
-   width int,
-   percentage float64,
-   isActive bool,
-) string {
-   // fmt.Sprintf("%s", bar.ViewAs(hpPercentage)),
-   // "♡♥❤ ",
-   heartIcon := "♥" // "♡"
-
-   fullHearts := int(math.Round(percentage * float64(width)))
-   emptyHearts := width - fullHearts
-
-   var a string
-   var b string
-   if !isActive {
-      a = config.StyleHealthBarFull.Render(strings.Repeat(heartIcon, fullHearts))
-      b = config.StyleHealthBarEmpty.Render(strings.Repeat(heartIcon, emptyHearts))
-   } else {
-      a = config.StyleHealthBarFullA.Render(strings.Repeat(heartIcon, fullHearts))
-      b = config.StyleHealthBarEmptyA.Render(strings.Repeat(heartIcon, emptyHearts))
-   }
-
-   return a + b 
-}
-
-func FormatString(
-   content string,
-   isActive bool,
-   isDead bool,
-) string {
-   if isActive {
-      content = config.StyleSelected.Render(content)
-   } else if isDead {
-      content = config.StyleDead.Render(content)
-   } else {
-      content = config.StyleDefault.Render(content)
-   }
-
-   return content
-}
-
-type ColorHelper struct {
-   Index int
-   Style lipgloss.Style
-}
-
-type PopupBorder struct {
-   topLeftCorner     string
-   topRightCorner    string
-   lowerRightCorner  string
-   lowerLeftCorner   string
-   topBorder         string
-   rightBorder       string
-   bottomBorder      string
-   leftBorder        string
-}
-
-var DefaultBorder PopupBorder = PopupBorder {
-   topLeftCorner: "┌",
-   topRightCorner: "┐",
-   lowerRightCorner: "┘",
-   lowerLeftCorner: "└",
-   topBorder: "─",
-   rightBorder: "│",
-   bottomBorder: "─",
-   leftBorder: "│",
-}
-
-func StylePopupBorder(
-   b     PopupBorder,
-   style lipgloss.Style,
-) PopupBorder {
-   return PopupBorder {
-      style.Render(b.topLeftCorner),
-      style.Render(b.topRightCorner),
-      style.Render(b.lowerRightCorner),
-      style.Render(b.lowerLeftCorner),
-      style.Render(b.topBorder),
-      style.Render(b.rightBorder),
-      style.Render(b.bottomBorder),
-      style.Render(b.leftBorder),
-   }
-}
-
 func PopUp (
-   content [][]string,
-   ch [][]ColorHelper,
+   field Field,
+   content renderer.RenderField,
    bs PopupBorder,
-   offsetTop int,
-   offsetLeft int,
+   x int,
+   y int,
 ) string {
 
    // Calculate width of the popup window.
@@ -175,7 +90,7 @@ func SelectionBox(
       checked := " "
       if selected[i] { 
          checked = "X"
-         checked = config.StyleGreen.Render(checked)
+         checked = config.GetStyle("green").Render(checked)
       }
 
       s = append(s, fmt.Sprintf("%s(%2d) %s", offset, i, checked) + 

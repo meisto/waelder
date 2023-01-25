@@ -1,6 +1,6 @@
 {
    "name": "Dundar the Strong",
-   "affiliation": "player",
+   "affiliation": 1,
    "race": "dwarf",
    "subrace": "mountaindwarf",
    "class": "fighter",

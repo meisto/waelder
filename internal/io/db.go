@@ -13,6 +13,7 @@ import (
    "database/sql"
    _ "github.com/mattn/go-sqlite3"
 
+   ds "waelder/internal/datastructures"
    "waelder/internal/io/queries"
    cm "waelder/internal/datastructures"
 )
@@ -33,7 +34,7 @@ func GetDatabaseHandle() *sql.DB {
    if errPing != nil {
       log.Fatal(errPing)
    }
-   fmt.Printf("Successfully connected to SQLite database at '%s'.\n", dbPath)
+   log.Print(fmt.Sprintf("Successfully connected to SQLite database at '%s'.\n", dbPath))
 
    return db
 }
@@ -53,17 +54,18 @@ func ReadCharacterFromDatabase(handle *sql.DB, charName string) cm.Character {
    row := handle.QueryRow(queries.GetCharacterByName, charName)
    
    var name          string
-   var affiliation   string
+   var affiliation   int
    var race          string
    var class         string
 
    err := row.Scan(&name, &affiliation, &race, &class)
    if err != nil { log.Fatal(err)}
-   
+
+   var a ds.Affiliation  
    return cm.Character {
       Name:          name,
-      Affiliation:   affiliation,
-      Race:           race,
+      Affiliation:   a,
+      Race:          race,
       // Subrace     string
       Class:         class,
       Stats: cm.CharacterStats {

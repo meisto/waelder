@@ -5,31 +5,75 @@
 // ======================================================================
 package datastructures
 
+import (
+   "fmt"
 
-type MeeleAttack struct {
-   Source   string
+   art "waelder/internal/asciiart"
+
+)
+
+type Action interface {
+   Display()            string
+   Apply(c Character)   []Character
+   GetTurn()            int
+} 
+
+
+type AttackType int64
+const (
+   Meele    AttackType = iota
+   Ranged   AttackType = iota
+   Magical  AttackType = iota
+)
+
+var icon map[AttackType]string = map[AttackType]string{
+   Meele:   art.OneLineSword,
+   Ranged:  art.OneLineArrow,
+   Magical: art.OneLineFire,
+}
+
+type Attack struct {
+   Turn     int
+   Source   Character
    Targets  []string
    HasHit   bool
    Damage   int
+   Range    AttackType
 }
+func (ma Attack) Display() string {
+   t := ""
+   for _, i := range(ma.Targets) { 
+      t += " "
+      t += i
+   }
 
-type RangedAttack struct {
-   Source   string
-   Targets  []string
-   HasHit   bool
-   Damage   int
+   return fmt.Sprintf(
+      "%10s %s %s",
+      ma.Source.Name,
+      icon[ma.Range],
+      t,
+   )
 }
+func (a Attack) Apply(c Character) Character {
+   if a.HasHit {
+      c.Stats.Hp -= a.Damage
+   }
 
-type MagicAttack struct {
-   Source   string
-   Targets  []string
-   HasHit   bool
-   Damage   int
+   return c
 }
+func (a Attack) GetTurn() int { return a.Turn }
+
+
 
 type Healing struct {
+   Turn        int
    Source      string
    Targets     []string
    HasHit      bool
    HpRegained  int
 }
+
+
+
+
+

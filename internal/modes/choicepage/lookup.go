@@ -14,7 +14,7 @@ import (
 // Struct to hold complete specification of a choice page
 type choiceSubPage struct {
    content     [][]string
-   style       [][]views.ColorHelper
+   style       [][]string
    selection   selection
 }
 
@@ -28,7 +28,7 @@ const (
 //
 var currentKey ChoicePageKey = Empty
 func SetChoicePage(key ChoicePageKey) {currentKey = key}
-
+/*
 
 // Generate a local lookup for subpages
 // var subPageLookup map[ChoicePageKey]choiceSubPage = 
@@ -41,9 +41,9 @@ var subPageLookup [3]choiceSubPage = [...]choiceSubPage{
          {"BUTTON2", "Not a button"},
          {"BUTTON3", "Not a button"},
       },
-      style:      [][]views.ColorHelper{
+      style:      [][]string{
          {},
-         {{Index: 0, Style: config.StyleDarkRedBg}},
+         {{Index: 0, Style: "darkredbg"}},
          {{Index: 0, Style: config.StyleDarkRedBg}},
          {{Index: 0, Style: config.StyleDarkRedBg}},
       },
@@ -119,4 +119,4 @@ func setFunction(f func(d*ds.Data)) {
    subPageLookup[Test2].selection[2].action = f
 }
 
-
+*/

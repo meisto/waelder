@@ -1,6 +1,6 @@
 {
    "name": "Gulgar",
-   "affiliation": "player",
+   "affiliation": 1,
    "race": "dwarf",
    "subrace": "mountaindwarf",
    "class": "paladin",

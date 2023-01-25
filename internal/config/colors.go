@@ -6,47 +6,74 @@
 package config
 
 import (
+   "log"
+   "strings"
+
    "github.com/charmbracelet/lipgloss"
 )
 
+const defaultScheme string = 
+   "style1,#000000,#84AF87\n" + 
+   "default,#DDDDDD,\n" +
+   "dead,#444444,\n" +
+   "selected,#333333,#CCCCCC\n" +
+   "healthBarFull,#FF0000,\n" + 
+   "healthBarEmpty,#999999,\n" + 
+   "healthBarFullActive,#FF0000,#CCCCCC\n" + 
+   "healthBarEmptyActive,#333333,#CCCCCC\n" + 
+   "green,#009900,\n" +
+   "darkRedBg,,#990000"
+
+
+var styleMap map[string]lipgloss.Style = make(map[string]lipgloss.Style)
+func SetupStylemap() {
+   // TODO: regex for validation
+   // TODO: add italic, underscore, bold, ... support
+   // TODO: make colorscheme changeable
+
+   entries := strings.Split(defaultScheme, "\n")
+   for _, e := range(entries) {
+      fields := strings.Split(e, ",")
+
+      if len(fields) < 3 { log.Fatal("[ERROR] Code: 14204875") } 
+
+      style := lipgloss.NewStyle()
+
+      if fields[1] != "" {
+         style = style.Foreground(lipgloss.Color(fields[1]))
+      }
+
+      if fields[2] != "" {
+         style = style.Background(lipgloss.Color(fields[2]))
+      }
+
+      styleMap[fields[0]] = style
+   }
+}
+
+func GetStyle(key string) lipgloss.Style {
+   value, isThere := styleMap[key]
+
+   if isThere {
+      return value
+   } else {
+      r, _ := styleMap["default"]
+      return r
+   }
+}
+
+func PrintAvailableStyles() {
+   for i := range(styleMap) {
+      println(
+         styleMap[i].Render(i), 
+         styleMap[i].GetForeground(),
+         styleMap[i].GetBackground(),
+      )
+   }
+}
 
 const (
-   Healthcolor100 string   = "#00FF00"
-   Healthcolor75 string    = "#F3F034"
-   Healthcolor50 string    = "#DE7007"
-   Healthcolor25 string    = "#FF0000"
-
    cBackground string   = "#333333"
 )
 
-var (
-   Style1 = lipgloss.NewStyle().
-      Background(lipgloss.Color("#84AF87")).
-      Foreground(lipgloss.Color("#000000"))
-
-   StyleDefault = lipgloss.NewStyle().
-      Foreground(lipgloss.Color("#DDDDDD"))
-
-   StyleDead = lipgloss.NewStyle().
-      Foreground(lipgloss.Color("#444444"))
-   StyleSelected = lipgloss.NewStyle().
-      Foreground(lipgloss.Color("#333333")).
-      Background(lipgloss.Color("#CCCCCC"))
-
-
-   StyleHealthBarFull = lipgloss.NewStyle().
-      Foreground(lipgloss.Color("#FF0000"))
-   StyleHealthBarEmpty = lipgloss.NewStyle().
-      Foreground(lipgloss.Color("#999999"))
-   // Active variants
-   StyleHealthBarFullA = lipgloss.NewStyle().
-      Foreground(lipgloss.Color("#FF0000")).
-      Background(lipgloss.Color("#CCCCCC"))
-   StyleHealthBarEmptyA = lipgloss.NewStyle().
-      Foreground(lipgloss.Color("#333333")).
-      Background(lipgloss.Color("#CCCCCC"))
-
-   StyleGreen = lipgloss.NewStyle().Foreground(lipgloss.Color("#009900"))
-   StyleDarkRedBg = lipgloss.NewStyle().Background(lipgloss.Color("#990000"))
-)
 

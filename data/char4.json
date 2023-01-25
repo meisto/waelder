@@ -1,6 +1,6 @@
 {
    "name": "Thorgrim",
-   "affiliation": "player",
+   "affiliation": 1,
    "race": "dwarf",
    "subrace": "mountaindwarf",
    "class": "cleric",

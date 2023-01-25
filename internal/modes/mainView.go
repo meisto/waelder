@@ -5,6 +5,7 @@
 // ======================================================================
 package modes
 
+/*
 import(
    "fmt"
    "strings"
@@ -87,7 +88,6 @@ func MainView(
          } else {
             line = strings.Join(components, " ")
          }
-         */ 
 
       }
 
@@ -111,3 +111,4 @@ func formatStatusLine(content []string, style lipgloss.Style) string {
 
 func MainUpdate(msg tea.KeyMsg) {
 }
+*/

@@ -1,6 +1,6 @@
 {
    "name": "Ted",
-   "affiliation": "player",
+   "affiliation": 1,
    "race": "dwarf",
    "subrace": "hilldwarf",
    "class": "bard",
