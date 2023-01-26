@@ -5,36 +5,31 @@
 // ======================================================================
 package modes
 
-import(
-   "github.com/muesli/termenv"
+import (
+	"github.com/muesli/termenv"
 
-   ds "waelder/internal/datastructures"
-   "waelder/internal/renderer"
+	ds "waelder/internal/datastructures"
+	"waelder/internal/renderer"
 )
 
-var actionModeHandle ModeHandle = ModeHandle {
-   Update: func(*ds.Data, string) {},
-   View: func(output *termenv.Output, d ds.Data, x int, y int, height int, width int) { 
+func actionView(output *termenv.Output, d ds.Data, x int, y int, height int, width int) {
 
-      if len(d.CombatLog.Actions) >  0 {
+   if len(d.CombatLog.Current.Actions) > 0 {
 
-         var res []renderer.RenderLine
-         for _, e := range(d.CombatLog.Actions) {
-            res = append(
-               res,
-               renderer.GenerateLine(
-                  width,
-                  []renderer.Renderable{
-                     renderer.GenerateNode(e.Display(), "default"),
-                  },
-               ),
-            )
-         }
-
-      renderer.GenerateField(res).RenderBlock(output, x, y, height, true, true)
-
+      var res []renderer.RenderLine
+      for _, e := range d.CombatLog.Current.Actions {
+         res = append(
+            res,
+            renderer.GenerateLine(
+               width,
+               []renderer.Renderable{
+                  renderer.GenerateNode(e.Display(), "default"),
+               },
+            ),
+         )
       }
 
+      renderer.GenerateField(res).RenderBlock(output, x, y, height, false, 1000)  
 
-   },
+   }
 }

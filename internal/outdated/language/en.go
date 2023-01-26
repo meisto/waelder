@@ -6,9 +6,7 @@
 package language
 
 func GetEn() Language {
-   return Language{
-      HelpBar: []string{"q quit", "d add/remove life"},
-   }
+	return Language{
+		HelpBar: []string{"q quit", "d add/remove life"},
+	}
 }
-
-

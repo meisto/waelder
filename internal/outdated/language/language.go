@@ -6,6 +6,5 @@
 package language
 
 type Language struct {
-   HelpBar     []string
+	HelpBar []string
 }
-

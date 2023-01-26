@@ -1,0 +1,34 @@
+// Format: style name, foreground color, background color, options 
+// options can be given as comma separated list. Currently available:
+// bold,faint,italic,crossout and underline
+
+// Basics
+default,#DDDDDD,,
+bold,#DDDDDD,,bold
+italic,#DDDDDD,,italic
+bolditalic,#DDDDDD,,bold,italic
+
+// Unknown is used if an unknown style is requested
+unknown,#FF0000,#0000Ff
+
+
+style1,#000000,#84AF87,
+dead,#444444,,
+selected,#333333,#CCCCCC,
+healthBarFull,#FF0000,,
+healthBarEmpty,#999999,,
+healthBarFullActive,#FF0000,#CCCCCC,
+healthBarEmptyActive,#333333,#CCCCCC,
+green,#009900,,
+darkRedBg,,#990000,
+darkGreenBg,,#009900,
+active,#000000,#FFFFFF,
+
+// Markdown rendering
+MarkdownHeader1,#000000,#87AF87,bold
+MarkdownHeader2,#000000,#87AF87,bold
+MarkdownHeader3,#000000,#87AF87
+MarkdownHeader4,#000000,#87AF87
+MarkdownHeader5,#000000,#87AF87
+MarkdownHeader6,#000000,#87AF87
+

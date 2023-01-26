@@ -6,7 +6,7 @@
 package queries
 
 const (
-   InitializeCharacterTable string = `
+	InitializeCharacterTable string = `
       CREATE TABLE IF NOT EXISTS character(
          name TEXT PRIMARY KEY,
          affiliation TEXT,
@@ -15,7 +15,7 @@ const (
       );
    `
 
-   InitializeGenericEnemyTable string = `
+	InitializeGenericEnemyTable string = `
       CREATE TABLE IF NOT EXISTS genericEnemy(
          name TEXT PRIMARY KEY,
          shortDesc TEXT NOT NULL,
@@ -25,19 +25,14 @@ const (
       );
    `
 
-   FetchCharacterNames string = `
+	FetchCharacterNames string = `
       SELECT name FROM character;
    `
 
-   AddCharacter string = `
+	AddCharacter string = `
       INSERT INTO character(name, affiliation, race, class)
          VALUES (?, ?, ?, ?);
    `
 
-   GetCharacterByName string = "SELECT * FROM character WHERE name == ?;"
-
-
-
-
+	GetCharacterByName string = "SELECT * FROM character WHERE name == ?;"
 )
-

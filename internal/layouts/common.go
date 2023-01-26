@@ -6,97 +6,71 @@
 package layouts
 
 import (
-   "log"
-   "fmt"
    "strings"
 
+	"github.com/muesli/termenv"
 
-   "waelder/internal/config"
-   "waelder/internal/renderer"
+	"waelder/internal/renderer"
+   io "waelder/internal/wio"
 )
 
+func PopUp(
+	output *termenv.Output,
+	content renderer.RenderField,
+	x int,
+	y int,
+	width int,
+	height int,
+) {
+	f := Field{
+		x:           x,
+		y:           y,
+		width:       width,
+		height:      height,
+		borders:     [4]bool{true, true, true, true},
+		borderStyle: DoubleBorderStyle,
+	}
 
-func PopUp (
-   field Field,
-   content renderer.RenderField,
-   bs PopupBorder,
-   x int,
-   y int,
+	f.DrawBorder(output)
+
+   // Clear content of popup
+   for i := y + 1; i < y + height - 1; i++ {
+      output.MoveCursor(i + 1,x + 2)
+      output.WriteString(strings.Repeat(" ", width - 2))
+   }
+
+	content.RenderBlock(output, x+1, y+1, height-2, true, 10000)
+}
+
+func ReadLinePopUp(
+	output *termenv.Output,
+	content renderer.RenderField,
+	x int,
+	y int,
+	width int,
+	height int,
 ) string {
+	f := Field{
+		x:           x,
+		y:           y,
+		width:       width,
+		height:      height,
+		borders:     [4]bool{true, true, true, true},
+		borderStyle: DoubleBorderStyle,
+	}
 
-   // Calculate width of the popup window.
-   width    := 0
-   for _, line := range(content) {
-      l := -1
-      for _, i := range(line) { l += len(i) + 1}
-      if (l + 4) > width {width = l + 4}
+	f.DrawBorder(output)
+
+   // Clear content of popup
+   for i := y + 1; i < y + height - 1; i++ {
+      output.MoveCursor(i + 1,x + 2)
+      output.WriteString(strings.Repeat(" ", width - 2))
    }
 
-   // Assemble main string
-   strMain  := ""
-   for i, line := range(content) {
-      
-      // Get length of line without padding
-      l := -1 // For spaces between elements
-      for _, i := range(line) { l += len(i) + 1}
-      if l == -1 {l = 0}   // For empty lines
-      if (l + 4) > width {width = l + 4}
-
-      // Apply styles
-      if len(content) != len(ch) {log.Fatal("[ERROR] Code:12302913")}
-      styles := ch[i]
-      for _, x := range(styles) {line[x.Index] = x.Style.Render(line[x.Index])}
-      
-      // Add padding
-      paddingC := 0
-      if l < width - 4 {
-         paddingC = width - l - 4
-      }
+	content.RenderBlock(output, x, y, height-2, true, 10000)
    
-
-      strMain += 
-         strings.Repeat(" ", offsetLeft) +   // Offset
-         bs.leftBorder + " " +               // Left inner padding
-         strings.Join(line, " ") +           // Join styled elements
-         strings.Repeat(" ", paddingC) +     // Add Padding
-         " " +                               // Right inner padding
-         bs.rightBorder + "\n"               // Right border
-   }
-
-   // Assemble string
-   return strings.Repeat("\n", offsetTop) +     // Top Bar
-      strings.Repeat(" ", offsetLeft) + 
-      bs.topLeftCorner + 
-      strings.Repeat(bs.topBorder, width - 2) +
-      bs.topRightCorner +
-      "\n" + 
-      strMain +                                 // Content
-      strings.Repeat(" ", offsetLeft) +         // Bottom Bar
-      bs.lowerLeftCorner +
-      strings.Repeat(bs.bottomBorder, width - 2) +
-      bs.lowerRightCorner
+   return <- io.ReadLine(true)
 }
 
-func SelectionBox(
-   content  []string,
-   selected []bool,
-   width    int,
-   offset   string,
-) []string {
-   var s []string
 
-   for i, x := range(content) {
 
-      checked := " "
-      if selected[i] { 
-         checked = "X"
-         checked = config.GetStyle("green").Render(checked)
-      }
-
-      s = append(s, fmt.Sprintf("%s(%2d) %s", offset, i, checked) + 
-         " " + x + 
-         strings.Repeat(" ", width - 7 - len(x) - len(offset)))
-   }
-
-   return s
-}

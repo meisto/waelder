@@ -6,31 +6,31 @@
 package datastructures
 
 import (
-   // tea "github.com/charmbracelet/bubbletea"
+// tea "github.com/charmbracelet/bubbletea"
 )
 
 type Affiliation int64
+
 const (
-   Player   Affiliation = iota
-   Ally     Affiliation = iota
-   Enemy    Affiliation = iota
-   Neutral  Affiliation = iota
+	Player  Affiliation = iota
+	Ally    Affiliation = iota
+	Enemy   Affiliation = iota
+	Neutral Affiliation = iota
 )
 
 type CharacterStats struct {
-   Hp          int
-   Max_hp      int
-   Initiative  int
-   Armout      int
+	Hp         int
+	Max_hp     int
+	Initiative int
+	Armout     int
 }
 
-type Character struct{
-   Name        string
-   Affiliation Affiliation
-   Race        string
-   Subrace     string
-   Class       string
+type Character struct {
+	Name        string
+	Affiliation Affiliation
+	Race        string
+	Subrace     string
+	Class       string
 
-   Stats       CharacterStats
+	Stats CharacterStats
 }
-

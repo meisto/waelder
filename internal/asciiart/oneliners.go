@@ -5,9 +5,8 @@
 // ======================================================================
 package asciiart
 
-
 /**
-   Taken from sources mentioned below, but edited.   
+   Taken from sources mentioned below, but edited.
 
    Sources:
    - https://emojicombos.com/sword-ascii
@@ -15,13 +14,11 @@ package asciiart
 **/
 
 const (
-   OneLineSword = "▬▬|═════-"
-   OneLineArrow = "»»------►"
-   OneLineFire  = "🔥🔥🔥🔥 "
+	OneLineSword = "▬▬|═════-"
+	OneLineArrow = "»»------►"
+	OneLineFire  = "🔥🔥🔥🔥 "
 
-   ColoredOneLineSword = "▬▬|═════-"
-   ColoredOneLineArrow = "»»------►"
-   ColoredOneLineFire  = "🔥🔥🔥🔥 "
-
+	ColoredOneLineSword = "▬▬|═════-"
+	ColoredOneLineArrow = "»»------►"
+	ColoredOneLineFire  = "🔥🔥🔥🔥 "
 )
-

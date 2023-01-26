@@ -6,21 +6,19 @@
 package main
 
 import (
-   "waelder/internal/renderer"
-   "waelder/internal/config"
+	"waelder/internal/config"
+	"waelder/internal/renderer"
 )
 
 func mainLocal() {
-   config.SetupStylemap()
-   a := renderer.GenerateNode("123", "style1")
+	config.SetupStylemap()
+	a := renderer.GenerateNode("123", "style1")
 
-   println(a.Render())
-   println()
-   
-   println()
-   config.PrintAvailableStyles()
+	println(a.Render())
+	println()
 
+	println()
+	config.PrintAvailableStyles()
 
-   println()
+	println()
 }
-
