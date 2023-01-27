@@ -6,6 +6,7 @@
 package root
 
 import (
+   "log"
 	"database/sql"
 	"path"
 
@@ -22,6 +23,7 @@ import (
 )
 
 func NewRun(dbHandle *sql.DB, elchan chan string, output *termenv.Output) {
+   log.Print("Start Run")
 
 	// TODO: Replace the defaults with a loading procedure
 	root := "/home/tobias/Documents/code/golang/src/waelder"
@@ -49,9 +51,11 @@ func NewRun(dbHandle *sql.DB, elchan chan string, output *termenv.Output) {
 
 	width, height, _ := term.GetSize(0)
 	height -= 1
+
+   // Set layout
 	layout := layouts.TwoOneHorizontalSplit(height, width)
 
-	//
+
 	var InitialNode graph.Node = graph.GetNode()
 
 	tg := graph.GetGraph(InitialNode)
@@ -68,9 +72,6 @@ func NewRun(dbHandle *sql.DB, elchan chan string, output *termenv.Output) {
 			},
 		),
 	)
-
-
-
 
 	tg.AddEdge(
 		graph.GetEdge(
@@ -92,6 +93,46 @@ func NewRun(dbHandle *sql.DB, elchan chan string, output *termenv.Output) {
       20,
       20,
       layout,
+   )
+
+   n2 := graph.GetNode()
+   tg.AddEdge(
+      graph.GetEdge(InitialNode, "i", n2, func() {
+         var f layouts.FieldInterface = layout.Fields[1]
+
+         x := f.(layouts.ScrollField)
+         y := &x
+         y.SetBorder(layouts.DefaultBorderStyle.Style("darkGreenFg"))
+         y.DrawBorder(output)
+         y.DrawContent(output, data)
+      }),
+   )
+
+   tg.AddEdge(graph.GetEdge(n2, "+", n2, func() {
+               layouts.ScrollUp()
+               log.Print(layouts.GetIndex())
+               layout.Fields[1].DrawBorder(output)
+   }))
+   tg.AddEdge(graph.GetEdge(n2, "-", n2, func() {
+      switch a := layout.Fields[1].(type) {
+         case layouts.ScrollField:
+               layouts.ScrollDown()
+               log.Print(layouts.GetIndex())
+               a.DrawBorder(output)
+               a.DrawContent(output, data)
+      }
+   }))
+
+   tg.AddEdge(
+      graph.GetEdge(n2, "i", InitialNode, func() {
+         var f layouts.FieldInterface = layout.Fields[1]
+
+         switch x := f.(type) {
+            case layouts.ScrollField:
+               x.DrawBorder(output)
+         }
+
+      }),
    )
 
 	// Start trigger goroutines

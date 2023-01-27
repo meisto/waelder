@@ -6,7 +6,6 @@
 package wio
 
 import (
-   "log"
    "regexp"
    "strings"
    "unicode/utf8"
@@ -19,7 +18,6 @@ type MDDocument struct {
    Parsed   renderer.RenderField
    width    int
 }
-
 
 func parseLine(line string, linewidth int) []renderer.RenderLine {
    if line == "" {
@@ -77,13 +75,9 @@ func parseLine(line string, linewidth int) []renderer.RenderLine {
       b := bold.FindStringIndex(line)
       bi := bolditalic.FindStringIndex(line)
 
-      log.Print(line)
-      log.Print("here i: ", i)
       var x []int = b
       if x == nil || ( i != nil &&  i[0] < x[0]) { x = i }
       if x == nil || (bi != nil && bi[0] < x[0]) { x = bi }
-
-      log.Print("here x: ", x)
 
       if x == nil {
          // No more relevant element in line

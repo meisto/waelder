@@ -21,6 +21,7 @@ func KeyStrokeTrigger(ch chan<- string) {
 	triggerMap[rune('\r')] = "<ENTER>"
    keys := []byte{
       'n', 'p', 'o', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+      'i', '+', '-',
    }
    for _, i := range(keys) { triggerMap[rune(i)] = fmt.Sprintf(string(i)) }
 

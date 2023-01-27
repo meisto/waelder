@@ -5,6 +5,8 @@
 // ======================================================================
 package layouts
 
+import "waelder/internal/config"
+
 type BorderStyle struct {
 	ulCorner    string
 	urCorner    string
@@ -14,6 +16,21 @@ type BorderStyle struct {
 	leftBorder  string
 	lowerBorder string
 	rightBorder string
+}
+
+func(b BorderStyle) Style(style string) BorderStyle {
+   s := config.GetStyle(style)
+
+   return BorderStyle {
+      s.Render(b.ulCorner),
+      s.Render(b.urCorner),
+      s.Render(b.llCorner),
+      s.Render(b.lrCorner),
+      s.Render(b.upperBorder),
+      s.Render(b.leftBorder),
+      s.Render(b.lowerBorder),
+      s.Render(b.rightBorder),
+   }
 }
 
 var DefaultBorderStyle BorderStyle = BorderStyle{

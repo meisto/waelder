@@ -8,7 +8,6 @@ package modes
 import (
 	"fmt"
 	"strings"
-   "log"
 
 	"github.com/muesli/termenv"
 
@@ -73,7 +72,6 @@ func activeView(
 
    if d.CombatLog.Current.IsDone() && lastBlockSave < roundNumber {
       lastBlockSave = roundNumber
-      log.Print("isdone")
       previousBlocks = append(
          previousBlocks,
          formatBlock(chars, -1, windowWidth, roundNumber, false),

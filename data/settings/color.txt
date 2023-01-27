@@ -21,7 +21,9 @@ healthBarFullActive,#FF0000,#CCCCCC,
 healthBarEmptyActive,#333333,#CCCCCC,
 green,#009900,,
 darkRedBg,,#990000,
+darkRedFg,#990000,,
 darkGreenBg,,#009900,
+darkGreenFg,#009900,,
 active,#000000,#FFFFFF,
 
 // Markdown rendering

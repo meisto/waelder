@@ -12,7 +12,7 @@ import (
    "waelder/internal/wio"
 )
 
-var markdown string = 
+var markdownRaw string = 
    "# Test\n" +
    "This is a Document\n"+
    "This is a Documenttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\n" +
@@ -47,7 +47,9 @@ var markdown string =
    "This is a Line\n" +
    "This is a Line\n"
 
-func SetMarkdown(md string) { markdown = md }
+var markdown = wio.GetMDDocument(markdownRaw, 20)
+func GetMarkdownLength() int { return markdown.Parsed.GetContentLength() }
+
 
 func mdView(
 	output *termenv.Output,
@@ -58,7 +60,7 @@ func mdView(
 	windowWidth int,
 ) {
 
-   b := wio.GetMDDocument(markdown, windowWidth)
+   markdown = wio.GetMDDocument(markdownRaw, windowWidth)
 
-   b.Parsed.RenderBlock(output, x, y, windowHeight, false, 0)
+   markdown.Parsed.RenderBlock(output, x, y, windowHeight, false, 0)
 }

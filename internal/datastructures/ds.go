@@ -153,13 +153,7 @@ func (data *Data) AddAction(action Action) {
    data.CombatLog.Current.Actions = 
       append(data.CombatLog.Current.Actions, action)
 
-   log.Print(data.characters["Ted"].Stats.Hp)
    for _, i := range(action.GetTargets()) {
       data.characters[i] = action.Apply(data.characters[i])
    }
-
-   log.Print(data.characters["Ted"].Stats.Hp)
-
-
-
 }

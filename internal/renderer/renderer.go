@@ -6,8 +6,8 @@
 package renderer
 
 import (
+   "log"
 	"fmt"
-	"log"
 	"strings"
 	"unicode/utf8"
 
@@ -39,6 +39,7 @@ type RenderField struct {
 }
 
 func (r RenderField) Length() int { return r.height }
+func (r RenderField) GetContentLength() int { return len(r.content) }
 func (r RenderField) Render(output *termenv.Output, x, y int) {
 	for i, a := range r.content {
 		a.Render(output, x, y+i)
@@ -61,7 +62,6 @@ func (r RenderField) RenderBlock(
    // Paint content
    if r.height > height {
       for i := 0; i < height; i++ {
-         log.Print("y:", y, " i:", i, " x:", x)
          r.content[i+offset].Render(output, x, y + i)
       }
    } else {

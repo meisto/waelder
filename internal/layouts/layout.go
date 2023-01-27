@@ -16,15 +16,16 @@ import (
 type Layout struct {
 	TotalHeight int
 	TotalWidth  int
-	fields      []Field
+	Fields      []FieldInterface
+   mdViewer    ScrollField
 }
 
 func FullScreen(height, width int) Layout {
 	return Layout{
 		TotalHeight: height,
 		TotalWidth:  width,
-		fields: []Field{
-			{
+		Fields: []FieldInterface{
+			Field {
 				x:           0,
 				y:           0,
 				height:      height,
@@ -49,8 +50,8 @@ func TwoOneHorizontalSplit(height, width int) Layout {
 	return Layout{
 		TotalHeight: height,
 		TotalWidth:  width,
-		fields: []Field{
-			{
+		Fields: []FieldInterface{
+			Field {
 				x:             0,
 				y:             0,
 				height:        l2,
@@ -60,17 +61,16 @@ func TwoOneHorizontalSplit(height, width int) Layout {
             padding:       [4]int{0, 0, 0, 0},
 				borderStyle: DoubleBorderStyle,
 			},
-			{
+			ScrollField {
 				x:           l1,
 				y:           0,
 				height:      l2,
 				width:       width - l1 + 1,
-				mode:        modes.MdViewMode,
-				borders:       [4]bool{true, false, true, true},
+				borders:       [3]bool{true, true, true},
             padding:       [4]int{1, 2, 1, 2},
 				borderStyle:   DoubleBorderStyle,
 			},
-			{
+			Field {
 				x:           0,
 				y:           l2 + 0,
 				height:      height - l2,
@@ -85,23 +85,18 @@ func TwoOneHorizontalSplit(height, width int) Layout {
 }
 
 func (lay Layout) DrawBorders(output *termenv.Output) {
-	for _, f := range lay.fields {
+	for _, f := range lay.Fields {
 		f.DrawBorder(output)
 	}
 }
 
 func (lay *Layout) Display(output *termenv.Output, data ds.Data) {
-	for _, f := range lay.fields {
-		f.DrawContent(output, data)
-	}
-	output.MoveCursor(lay.TotalHeight-1, 1)
+	for _, f := range lay.Fields { f.DrawContent(output, data) }
 }
 
 func (lay *Layout) UpdateMode(output *termenv.Output, data ds.Data, mode modes.Mode) {
-	for _, f := range lay.fields {
-		if f.mode == mode {
-			f.DrawContent(output, data)
-		}
+	for _, f := range lay.Fields {
+		if f.GetMode() == mode { f.DrawContent(output, data) }
 	}
 }
 
