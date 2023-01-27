@@ -25,6 +25,7 @@ darkRedFg,#990000,,
 darkGreenBg,,#009900,
 darkGreenFg,#009900,,
 active,#000000,#FFFFFF,
+scrollBarHandle,#000000,#990000,
 
 // Markdown rendering
 MarkdownHeader1,#000000,#87AF87,bold

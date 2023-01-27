@@ -1,5 +1,5 @@
 // ======================================================================
-// Author: Tobias Meisel (meisto)
+// Author: meisto
 // Creation Date: Wed 18 Jan 2023 03:22:02 AM CET
 // Description: -
 // ======================================================================
@@ -14,6 +14,8 @@ import (
 
 	ds "waelder/internal/datastructures"
 	"waelder/internal/modes"
+	"waelder/internal/renderer"
+	"waelder/internal/config"
 )
 
 type FieldInterface interface {
@@ -25,20 +27,55 @@ type FieldInterface interface {
 }
 
 type Field struct {
-	x           int
-	y           int
-	width       int
-	height      int
-	mode        modes.Mode
-	borders     [4]bool
-   padding     [4]int
-	borderStyle BorderStyle
+	x              int
+	y              int
+	width          int
+	height         int
+
+	mode           modes.Mode
+   content        renderer.RenderField
+
+   padding        [4]int
+   scrollIndex    int
+	borders        [4]bool
+	borderStyle    BorderStyle
+}
+
+func GetField(x, y, width, height int, mode modes.Mode,
+   padding [4]int, scrollIndex int, borders [4]bool, borderStyle BorderStyle) Field {
+   
+   var content renderer.RenderField
+
+   return Field {
+      x,
+      y,
+      width,
+      height,
+      mode,
+      content,
+      padding,
+      scrollIndex,
+      borders,
+      borderStyle,
+   }
+
 }
 
 
-
+func (f *Field) ScrollDown() {
+   maxOffset := f.content.GetContentLength() + f.padding[0] + f.padding[2] + 
+      1 - f.height
+   if f.scrollIndex > -1 && f.scrollIndex < maxOffset {
+      f.scrollIndex += 1
+   }
+}
+func (f *Field) ScrollUp() {
+   if f.scrollIndex > 0 {
+      f.scrollIndex -= 1
+   }
+}
 func (f Field) GetMode() modes.Mode { return f.mode }
-func (f Field) SetBorder(f2 *Field, bs BorderStyle) { f2.borderStyle= bs }
+func (f *Field) SetBorder(bs BorderStyle) { f.borderStyle= bs }
 func (f Field) GetBorder() BorderStyle { return f.borderStyle }
 func (f Field) DrawBorder(output *termenv.Output) {
 
@@ -124,11 +161,23 @@ func (f Field) DrawBorder(output *termenv.Output) {
 			g(f.y+f.height-1, f.x, l)
 		}
 	}
+
+   // Draw scrollbar indicator
+   maxOffset := f.content.GetContentLength() + f.padding[0] + f.padding[2] + 
+      1 - f.height
+   if f.scrollIndex != -1 && f.borders[1] && maxOffset > 0 {
+
+      percentage := float64(f.scrollIndex) / float64(maxOffset)
+      i := int(percentage * float64(f.height - 3))
+      scrollBarHandle := config.GetStyle("scrollBarHandle").Render("╬")
+      g(f.y + i + 1, f.x+f.width - 1, scrollBarHandle)
+
+   }
 }
 
 
 
-func (f Field) DrawContent(output *termenv.Output, d ds.Data) {
+func (f *Field) DrawContent(output *termenv.Output, d ds.Data) {
 	// Remainig width
 	h := f.height  - f.padding[0] - f.padding[2]
 	w := f.width   - f.padding[1] - f.padding[3]
@@ -143,6 +192,6 @@ func (f Field) DrawContent(output *termenv.Output, d ds.Data) {
 	if f.borders[2] { h -= 1 }
 	if f.borders[3] { hOff += 1; w -= 1 }
    
-	modes.ModeLookup[f.mode](output, d, f.x+hOff, f.y+vOff, h, w)
+	f.content = modes.ModeLookup[f.mode](output, d, h, w)
+   f.content.RenderBlock(output, f.x + hOff, f.y + vOff, h, true, f.scrollIndex)
 }
-

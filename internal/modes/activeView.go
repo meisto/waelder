@@ -1,5 +1,5 @@
 // ======================================================================
-// Author: Tobias Meisel (meisto)
+// Author: meisto
 // Creation Date: Mon 21 Nov 2022 05:08:56 PM CET
 // Description: -
 // ======================================================================
@@ -24,11 +24,9 @@ var lastBlockSave int = -1
 func activeView(
 	output *termenv.Output,
 	d ds.Data,
-	x int,
-	y int,
 	windowHeight int,
 	windowWidth int,
-) {
+) renderer.RenderField {
    chars := make([]ds.Character, d.CombatLog.Current.NumberCombatants())
    activeIndex := len(d.CombatLog.Current.Done)
    roundNumber := d.CombatLog.Current.RoundNumber
@@ -52,7 +50,7 @@ func activeView(
 		true,
 	)
 
-
+   /*
 	l := windowHeight
 	a.RenderBlock(output, x, y, l, true, 100000)
 	l -= a.Length()
@@ -76,8 +74,10 @@ func activeView(
          previousBlocks,
          formatBlock(chars, -1, windowWidth, roundNumber, false),
       )
-
+   
    }
+   */
+   return a
 
 }
 

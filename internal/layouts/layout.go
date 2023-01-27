@@ -1,5 +1,5 @@
 // ======================================================================
-// Author: Tobias Meisel (meisto)
+// Author: meisto
 // Creation Date: Wed 18 Jan 2023 03:22:02 AM CET
 // Description: -
 // ======================================================================
@@ -16,16 +16,15 @@ import (
 type Layout struct {
 	TotalHeight int
 	TotalWidth  int
-	Fields      []FieldInterface
-   mdViewer    ScrollField
+	Fields      []Field
 }
 
 func FullScreen(height, width int) Layout {
 	return Layout{
 		TotalHeight: height,
 		TotalWidth:  width,
-		Fields: []FieldInterface{
-			Field {
+		Fields: []Field{
+			{
 				x:           0,
 				y:           0,
 				height:      height,
@@ -33,6 +32,7 @@ func FullScreen(height, width int) Layout {
 				mode:        modes.ActiveMode,
 				borders:     [4]bool{true, true, true, true},
 				borderStyle: FancyBorderStyle,
+            scrollIndex: -1,
 			},
 		},
 	}
@@ -50,8 +50,8 @@ func TwoOneHorizontalSplit(height, width int) Layout {
 	return Layout{
 		TotalHeight: height,
 		TotalWidth:  width,
-		Fields: []FieldInterface{
-			Field {
+		Fields: []Field{
+			{
 				x:             0,
 				y:             0,
 				height:        l2,
@@ -60,17 +60,20 @@ func TwoOneHorizontalSplit(height, width int) Layout {
 				borders:       [4]bool{true, false, true, false},
             padding:       [4]int{0, 0, 0, 0},
 				borderStyle: DoubleBorderStyle,
+            scrollIndex:   -1,
 			},
-			ScrollField {
+			{
 				x:           l1,
 				y:           0,
 				height:      l2,
 				width:       width - l1 + 1,
-				borders:       [3]bool{true, true, true},
+				mode:          modes.MdViewMode,
+				borders:       [4]bool{true, true, true, true},
             padding:       [4]int{1, 2, 1, 2},
 				borderStyle:   DoubleBorderStyle,
+            scrollIndex:   0,
 			},
-			Field {
+			{
 				x:           0,
 				y:           l2 + 0,
 				height:      height - l2,
@@ -79,6 +82,7 @@ func TwoOneHorizontalSplit(height, width int) Layout {
 				borders:     [4]bool{false, false, true, false},
             padding:       [4]int{0, 0, 0, 0},
 				borderStyle: DoubleBorderStyle,
+            scrollIndex: -1,
 			},
 		},
 	}
@@ -91,7 +95,9 @@ func (lay Layout) DrawBorders(output *termenv.Output) {
 }
 
 func (lay *Layout) Display(output *termenv.Output, data ds.Data) {
-	for _, f := range lay.Fields { f.DrawContent(output, data) }
+   for i := 0; i < len(lay.Fields); i++ { 
+      lay.Fields[i].DrawContent(output, data) 
+   }
 }
 
 func (lay *Layout) UpdateMode(output *termenv.Output, data ds.Data, mode modes.Mode) {

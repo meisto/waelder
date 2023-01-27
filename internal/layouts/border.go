@@ -1,5 +1,5 @@
 // ======================================================================
-// Author: Tobias Meisel (meisto)
+// Author: meisto
 // Creation Date: Fri 27 Jan 2023 12:16:44 AM CET
 // Description: Some different border styles
 // ======================================================================

@@ -1,5 +1,5 @@
 // ======================================================================
-// Author: Tobias Meisel (meisto)
+// Author: meisto
 // Creation Date: Thu 26 Jan 2023 03:07:49 PM CET
 // Description: -
 // ======================================================================
@@ -10,6 +10,7 @@ import (
 
 	ds "waelder/internal/datastructures"
    "waelder/internal/wio"
+   "waelder/internal/renderer"
 )
 
 var markdownRaw string = 
@@ -45,7 +46,8 @@ var markdownRaw string =
    "This is a Line\n" +
    "This is a Line\n" +
    "This is a Line\n" +
-   "This is a Line\n"
+   "This is a Line\n" +
+   "This is the last Line\n"
 
 var markdown = wio.GetMDDocument(markdownRaw, 20)
 func GetMarkdownLength() int { return markdown.Parsed.GetContentLength() }
@@ -54,13 +56,11 @@ func GetMarkdownLength() int { return markdown.Parsed.GetContentLength() }
 func mdView(
 	output *termenv.Output,
 	d ds.Data,
-	x int,
-	y int,
 	windowHeight int,
 	windowWidth int,
-) {
+) renderer.RenderField {
 
    markdown = wio.GetMDDocument(markdownRaw, windowWidth)
 
-   markdown.Parsed.RenderBlock(output, x, y, windowHeight, false, 0)
+   return markdown.Parsed
 }

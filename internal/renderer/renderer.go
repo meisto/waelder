@@ -1,5 +1,5 @@
 // ======================================================================
-// Author: Tobias Meisel (meisto)
+// Author: meisto
 // Creation Date: Wed 18 Jan 2023 07:27:51 PM CET
 // Description: -
 // ======================================================================
@@ -74,6 +74,8 @@ func (r RenderField) RenderBlock(
 }
 
 func GenerateField(content []RenderLine) RenderField {
+   if len(content) == 0 {return RenderField{height:0, content: []RenderLine{}}}
+
 	l := content[0].Length()
 	for _, i := range content {
 		if i.Length() != l {
@@ -103,6 +105,8 @@ func (r RenderLine) Length() int {
 }
 func (r RenderLine) Render(output *termenv.Output, x, y int) {
 	l := 0
+	output.MoveCursor(y + 1, x + 1)
+   output.WriteString(strings.Repeat(" ", r.width))
 	output.MoveCursor(y + 1, x + 1)
 
 	for _, k := range r.content {

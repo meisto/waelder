@@ -1,5 +1,5 @@
 // ======================================================================
-// Author: Tobias Meisel (meisto)
+// Author: meisto
 // Creation Date: Wed 18 Jan 2023 03:05:03 PM CET
 // Description: -
 // ======================================================================
@@ -12,11 +12,11 @@ import (
 	"waelder/internal/renderer"
 )
 
-func actionView(output *termenv.Output, d ds.Data, x int, y int, height int, width int) {
+func actionView(output *termenv.Output, d ds.Data, height int, width int) renderer.RenderField {
 
+   var res []renderer.RenderLine
    if len(d.CombatLog.Current.Actions) > 0 {
 
-      var res []renderer.RenderLine
       for _, e := range d.CombatLog.Current.Actions {
          res = append(
             res,
@@ -28,8 +28,6 @@ func actionView(output *termenv.Output, d ds.Data, x int, y int, height int, wid
             ),
          )
       }
-
-      renderer.GenerateField(res).RenderBlock(output, x, y, height, false, 1000)  
-
    }
+   return renderer.GenerateField(res)
 }
