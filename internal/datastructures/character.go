@@ -6,7 +6,7 @@
 package datastructures
 
 import (
-// tea "github.com/charmbracelet/bubbletea"
+   "waelder/internal/renderer"
 )
 
 type Affiliation int64
@@ -19,10 +19,11 @@ const (
 )
 
 type CharacterStats struct {
-	Hp         int
-	Max_hp     int
-	Initiative int
-	Armout     int
+	Hp          int
+	Max_hp      int
+	Initiative  int
+	Armour      int
+   HasReaction bool
 }
 
 type Character struct {
@@ -33,4 +34,21 @@ type Character struct {
 	Class       string
 
 	Stats CharacterStats
+}
+
+func (ch Character) GetStyledName() renderer.Renderable {
+   if ch.Affiliation == Ally {
+      return renderer.GenerateNode(ch.Name, "alliedUnit")
+   }
+   if ch.Affiliation == Neutral {
+      return renderer.GenerateNode(ch.Name, "neutralUnit")
+   }
+   if ch.Affiliation == Enemy {
+      return renderer.GenerateNode(ch.Name, "enemyUnit")
+   }
+   if ch.Affiliation == Player {
+      return renderer.GenerateNode(ch.Name, "playerUnit")
+   }
+
+   return renderer.GenerateNoRenderNode(ch.Name)
 }

@@ -3,16 +3,19 @@
 // Creation Date: Fri 20 Jan 2023 12:55:59 AM CET
 // Description: -
 // ======================================================================
-package graph
+package datastructures
 
-import ds "waelder/internal/datastructures"
+import (
+   "log"
+)
 
 type Node int32
 type Edge struct {
-	Root   Node
-	Label  string
-	Target Node
-	action func()
+	Root        Node
+	Label       string
+	Target      Node
+	action      func()
+   description string
 }
 
 var nodeIndex int32 = 0
@@ -23,11 +26,12 @@ func GetNode() Node {
 	return Node(nodeIndex - 1)
 }
 
-func GetEdge(root Node, label string, target Node, action func()) Edge {
-	return Edge{root, label, target, action}
+func GetEdge(root Node, label string, target Node, action func(), description string) Edge {
+	return Edge{root, label, target, action, description}
 }
 
 type Graph struct {
+   Root       Node
 	activeNode Node
 	nodes      []Node
 	edges      []Edge
@@ -38,6 +42,7 @@ type Graph struct {
 func GetGraph(rootNode Node) Graph {
 
 	g := Graph{
+      Root:       rootNode,
 		activeNode: rootNode,
 		lookup:     make(map[Node][]Edge),
 	}
@@ -60,16 +65,19 @@ func (g *Graph) AddNode(n Node) bool {
 
 }
 func (g *Graph) AddEdge(e Edge) bool {
+   
+   for i := 0; i < len(g.edges); i++ {
+      if g.edges[i].Root == e.Root && g.edges[i].Label == e.Label {
+         log.Fatal("ERROR: Similar edge already exists.")
+      }
+   }
+
 	hasRoot := false
 	hasTarget := false
 
 	for _, i := range g.nodes {
-		if i == e.Root {
-			hasRoot = true
-		}
-		if i == e.Target {
-			hasTarget = true
-		}
+		if i == e.Root { hasRoot = true }
+		if i == e.Target { hasTarget = true }
 	}
 
 	if hasRoot {
@@ -87,7 +95,7 @@ func (g *Graph) AddEdge(e Edge) bool {
 	return false
 }
 
-func (g *Graph) Step(key string, d *ds.Data) bool {
+func (g *Graph) Step(key string, d *Data) bool {
 
 	for _, i := range g.lookup[g.activeNode] {
 		if i.Label == key {

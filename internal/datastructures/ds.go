@@ -9,6 +9,8 @@ import (
    "fmt"
    "log"
 	"sort"
+
+   "waelder/internal/datastructures/graph"
 )
 
 // Root data struct
@@ -20,15 +22,16 @@ type Data struct {
 
 	CombatLog CombatLog
    characters  map[string]Character
+   tg       graph.Graph
 }
 func GetData() Data { 
    return Data {
-      []string{},
-      []string{},
-      []string{},
-      []string{},
+      Players: []string{},
+      Allies:  []string{},
+      Enemies: []string{},
+      Neutrals:[]string{},
 
-      CombatLog{
+      CombatLog: CombatLog{
          PreviousRounds:   []Round{},
          Current: Round{
             RoundNumber:   -1,
@@ -38,7 +41,7 @@ func GetData() Data {
             Actions:          []Action{},
          },
       },
-      make(map[string]Character),
+      characters: make(map[string]Character),
    } 
 }
 func (d *Data) AddPlayer(c Character) {
@@ -56,6 +59,19 @@ func (d *Data) AddEnemy(c Character) {
 func (d *Data) AddNeutral(c Character) {
    d.Neutrals = append(d.Neutrals, c.Name)
    d.characters[c.Name] = c
+}
+
+func (data *Data) Apply(a Action) {
+   data.CombatLog.Current.Actions = 
+      append(data.CombatLog.Current.Actions, a)
+
+   for _, i := range(a.GetTargets()) {
+      c := data.characters[i]
+
+      data.characters[i] = a.Apply(c)
+   }
+
+
 }
 
 
@@ -148,12 +164,4 @@ func (data *Data) PrepareNextRound() {
 
 func (data Data) GetCharacter(name string) Character {
    return data.characters[name]
-}
-func (data *Data) AddAction(action Action) {
-   data.CombatLog.Current.Actions = 
-      append(data.CombatLog.Current.Actions, action)
-
-   for _, i := range(action.GetTargets()) {
-      data.characters[i] = action.Apply(data.characters[i])
-   }
 }
