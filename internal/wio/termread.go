@@ -7,6 +7,7 @@ package wio
 
 import (
 	"bufio"
+   "log"
 	"os"
 )
 
@@ -19,7 +20,18 @@ var readLineOut chan string = make(chan string)
 
 
 func ReadByte() rune {
-	a, _, _ := reader.ReadRune()
+   var x = make([]byte, 3)
+   numRead, err := os.Stdin.Read(x)
+   if err != nil {
+      log.Fatal("Unknown error.")
+   }
+   
+   if numRead == 3 {
+      log.Print("Haha")
+      return ' '
+   }
+
+   a := rune(x[0])
 
    // Hack(ish) code following
    if isReadLine {
@@ -30,7 +42,14 @@ func ReadByte() rune {
 
          buffer = append(buffer, rune(a))
 
-         a, _, _ = reader.ReadRune()
+         x = make([]byte, 3)
+         numRead, err := os.Stdin.Read(x)
+         if err != nil {
+            log.Fatal("Unknown error.")
+         }
+         if numRead != 1 {continue}
+         a = rune(x[0])
+
       }
 
       readLineOut <- string(buffer)

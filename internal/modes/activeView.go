@@ -51,31 +51,28 @@ func activeView(
 	)
 
    /*
-	l := windowHeight
-	a.RenderBlock(output, x, y, l, true, 100000)
-	l -= a.Length()
+      l := windowHeight
+      l -= a.Length()
 
+      i := roundNumber - 1
+      for ; i >= 0 && l >= 0 && i < len(previousBlocks); i-- {
 
+         // TODO Update chars
+         b := previousBlocks[i]
+         l -= b.GetHeight()
+         a = b.Join(a)
+      }
 
-	i := roundNumber - 1
-	for ; i >= 0 && l >= 0; i-- {
+      
 
-      // TODO Update chars
-      b := previousBlocks[i]
-		b.RenderBlock(output, x, y, l, true, 10000)
-		l -= b.GetHeight()
-	}
-
-   
-
-   if d.CombatLog.Current.IsDone() && lastBlockSave < roundNumber {
-      lastBlockSave = roundNumber
-      previousBlocks = append(
-         previousBlocks,
-         formatBlock(chars, -1, windowWidth, roundNumber, false),
-      )
-   
-   }
+      if d.CombatLog.Current.IsDone() && lastBlockSave < roundNumber {
+         lastBlockSave = roundNumber
+         previousBlocks = append(
+            previousBlocks,
+            formatBlock(chars, -1, windowWidth, roundNumber, false),
+         )
+      
+      }
    */
    return a
 
@@ -86,38 +83,76 @@ func drawLine(
 	isActive bool,
 	width int,
 ) renderer.RenderLine {
-	// Sonderzeichen: 👞
-	// "♡♥❤ ",
-	// heartIcon := "♥" // "♡"
 
 	// Hardcoded settings
-	sprintIcon := "👞"
+	sprintIcon     := "👞"
+	heartIcon      := "♥" // "♡♥❤ ",
+   armourIcon     := ""
+   reactionIcon   := ""
 	charNameWidth := 20
-	// heartIcon := "X"
-	heartIcon := "♥" // "♡"
-
-	initiative := fmt.Sprintf("%s %2d", sprintIcon, char.Stats.Initiative)
-
-	charName := char.Name
-	if len(charName) > charNameWidth {
-		charName = charName[:charNameWidth-3] + "..."
-	} else {
-		charName = fmt.Sprintf(" %17s ", charName) // not selected
-	}
 
 
+   // Format character name
+	var charName renderer.Renderable
+   {
+      name := char.Name
+
+      if len(name) > charNameWidth {
+         name = name[:charNameWidth-3] + "..."
+      } else {
+         name = fmt.Sprintf(" %17s ", name) // not selected
+      }
+
+      var style string
+      if !isActive {
+         switch char.Affiliation {
+            case ds.Ally: style     = "allyUnit"
+            case ds.Player: style   = "playerUnit"
+            case ds.Neutral: style  = "neutralUnit"
+            case ds.Enemy: style    = "enemyUnit"
+         }
+      } else {
+         switch char.Affiliation {
+            case ds.Ally: style     = "allyUnitActive"
+            case ds.Player: style   = "playerUnitActive"
+            case ds.Neutral: style  = "neutralUnitActive"
+            case ds.Enemy: style    = "enemyUnitActive"
+         }
+
+      }
+
+      charName = renderer.GenerateNode(name, style)
+   }
+
+
+	// Format HP info
    hp := char.Stats.Hp
    if hp < 0 { hp = 0 }
-
-	// Generate
 	hpPercentage := float64(hp) / float64(char.Stats.Max_hp)
+
+   // Capture special cases for mathematical stability
    if char.Stats.Max_hp == 0 { hpPercentage = 0.0}
    if hpPercentage < 0 { hpPercentage = 0.0 }
 
-	isDead := hpPercentage == 0.0
+   // Reaction
+   var reaction string
+   if char.Stats.HasReaction {
+      reaction = "  "
+   } else {
+      reaction = fmt.Sprintf("%s ", reactionIcon)
+   }
 
+
+   // Format other stuff
+	initiative := fmt.Sprintf("%s %2d", sprintIcon, char.Stats.Initiative)
+	health := FormatHealthString(10, hpPercentage, isActive, heartIcon)
+	healthNumeral := fmt.Sprintf("%03d/%03d", hp, char.Stats.Max_hp)
+   rk := fmt.Sprintf("%s %3d", armourIcon, char.Stats.Armour)
+
+
+   // Function to style elements
 	f := func(s string) renderer.RenderNode {
-
+	   isDead := hpPercentage == 0.0
 		var style string
 		if isActive {
 			style = "selected"
@@ -129,11 +164,8 @@ func drawLine(
 		return renderer.GenerateNode(s, style)
 	}
 
-	health := FormatHealthString(10, hpPercentage, isActive, heartIcon)
-	healthNumeral := f(fmt.Sprintf("%03d/%03d", hp, char.Stats.Max_hp))
-
 	// Generate separator between row entries
-	separator := f(" ")
+	separator := f("  ")
 
 	// Assebmle string
 	a := renderer.GenerateLine(
@@ -141,13 +173,15 @@ func drawLine(
 		[]renderer.Renderable{
 			f(initiative),
 			separator,
-			f(charName),
+			charName,
 			separator,
 			health,
 			separator,
-			healthNumeral,
+			f(healthNumeral),
 			separator,
-			f("RK 1011"),
+			f(rk),
+			separator,
+         f(reaction),
 		},
 	)
 
@@ -172,7 +206,7 @@ func formatBlock(
 	a := renderer.GenerateNoRenderNode("──┤")
    var b renderer.Renderable
    if isCurrentRound {
-      b = renderer.GenerateNode(fmt.Sprintf(" Round %d ", roundNumber), "darkRedBg")
+      b = renderer.GenerateNode(fmt.Sprintf(" Round %d ", roundNumber + 1), "darkRedBg")
    } else {
       b = renderer.GenerateNoRenderNode(fmt.Sprintf(" Round %d ", roundNumber))
    }

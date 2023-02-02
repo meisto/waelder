@@ -5,10 +5,6 @@
 // ======================================================================
 package datastructures
 
-import (
-   "waelder/internal/renderer"
-)
-
 type Affiliation int64
 
 const (
@@ -36,19 +32,14 @@ type Character struct {
 	Stats CharacterStats
 }
 
-func (ch Character) GetStyledName() renderer.Renderable {
-   if ch.Affiliation == Ally {
-      return renderer.GenerateNode(ch.Name, "alliedUnit")
-   }
-   if ch.Affiliation == Neutral {
-      return renderer.GenerateNode(ch.Name, "neutralUnit")
-   }
-   if ch.Affiliation == Enemy {
-      return renderer.GenerateNode(ch.Name, "enemyUnit")
-   }
-   if ch.Affiliation == Player {
-      return renderer.GenerateNode(ch.Name, "playerUnit")
-   }
+func (ch Character) IsDead() bool { return ch.Stats.Hp <= 0}
 
-   return renderer.GenerateNoRenderNode(ch.Name)
+func (ch Character) GetStyle() string {
+   switch ch.Affiliation {
+      case Player: return "playerUnit"
+      case Ally: return "allyUnit"
+      case Enemy: return "enemyUnit"
+      case Neutral: return "neutralUnit"
+   }
+   return "unknown"
 }

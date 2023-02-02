@@ -12,6 +12,8 @@ import (
 
 	"waelder/internal/renderer"
    io "waelder/internal/wio"
+   ds "waelder/internal/datastructures"
+   "waelder/internal/modes"
 )
 
 func PopUp(
@@ -19,27 +21,34 @@ func PopUp(
 	content renderer.RenderField,
 	x int,
 	y int,
-	width int,
-	height int,
+   data ds.Data,
 ) {
+
+   height := content.GetHeight()
+   width := content.GetWidth()
+
+   y = y - height / 2 - 1
+   
 	f := Field{
 		x:           x,
 		y:           y,
-		width:       width,
-		height:      height,
+		width:       width + 2,
+		height:      height + 2,
 		borders:     [4]bool{true, true, true, true},
-		borderStyle: DoubleBorderStyle,
+		borderStyle:   DoubleBorderStyle,
+      padding:       [4]int{0,0,0,0},
+      content:       content,
+      mode:          modes.NoMode,
 	}
 
-	f.DrawBorder(output)
-
    // Clear content of popup
-   for i := y + 1; i < y + height - 1; i++ {
-      output.MoveCursor(i + 1,x + 2)
-      output.WriteString(strings.Repeat(" ", width - 2))
+   for i := y; i < y + height; i++ {
+      output.MoveCursor(i + 2,x + 2)
+      output.WriteString(strings.Repeat(" ", width))
    }
 
-	content.RenderBlock(output, x+1, y+1, height-2, true, 10000)
+	f.DrawBorder(output)
+   f.DrawContent(output, data)
 }
 
 func ReadLinePopUp(
@@ -47,19 +56,23 @@ func ReadLinePopUp(
 	content renderer.RenderField,
 	x int,
 	y int,
-	width int,
-	height int,
+   data ds.Data,
 ) string {
+   height := content.GetHeight()
+   width := content.GetWidth()
+
 	f := Field{
 		x:           x,
 		y:           y,
-		width:       width,
-		height:      height,
+		width:       width + 2,
+		height:      height + 2,
 		borders:     [4]bool{true, true, true, true},
-		borderStyle: DoubleBorderStyle,
+		borderStyle:   DoubleBorderStyle,
+      padding:       [4]int{0,0,0,0},
+      content:       content,
+      mode:          modes.NoMode,
 	}
 
-	f.DrawBorder(output)
 
    // Clear content of popup
    for i := y + 1; i < y + height - 1; i++ {
@@ -67,7 +80,8 @@ func ReadLinePopUp(
       output.WriteString(strings.Repeat(" ", width - 2))
    }
 
-	content.RenderBlock(output, x, y, height-2, true, 10000)
+	f.DrawBorder(output)
+   f.DrawContent(output, data)
    
    return <- io.ReadLine(true)
 }

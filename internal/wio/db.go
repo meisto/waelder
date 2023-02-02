@@ -53,7 +53,7 @@ func ReadCharacterFromDatabase(handle *sql.DB, charName string) cm.Character {
 	row := handle.QueryRow(queries.GetCharacterByName, charName)
 
 	var name string
-	var affiliation int
+	var affiliation ds.Affiliation
 	var race string
 	var class string
 
@@ -62,10 +62,9 @@ func ReadCharacterFromDatabase(handle *sql.DB, charName string) cm.Character {
 		log.Fatal(err)
 	}
 
-	var a ds.Affiliation
 	return cm.Character{
 		Name:        name,
-		Affiliation: a,
+		Affiliation: affiliation,
 		Race:        race,
 		// Subrace     string
 		Class: class,
@@ -120,6 +119,7 @@ func SyncCharacterWithDatabase(handle *sql.DB, char cm.Character) cm.Character {
 			log.Fatal(err)
 		}
 	}
+
 
 	return char
 }

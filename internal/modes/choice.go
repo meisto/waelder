@@ -12,21 +12,24 @@ import (
 type Choice struct {
    index    int
    Header   string
-   Footer   string
    buttons  []string
-   labels   []string
+   labels   []renderer.Renderable
 }
-func GetChoice(index int, header, footer string, buttons []string, labels []string) Choice {
-   return Choice{index, header, footer, buttons, labels}
+func GetChoice(header string, buttons []string, labels []renderer.Renderable) Choice {
+   return Choice{0, header, buttons, labels}
 }
-func (c *Choice) Step() {
+func (c *Choice) Forward() {
    c.index += 1
    if c.index >= len(c.buttons) { c.index = 0}
+}
+func (c *Choice) Backward() {
+   c.index -= 1
+   if c.index < 0 { c.index = len(c.buttons) - 1}
 }
 
 func (c *Choice) GoTo(n int) {
    if n < 0 { n = 0 }
-   if n > len(c.buttons) { n = len(c.buttons) - 1 }
+   if n >= len(c.buttons) { n = len(c.buttons) - 1 }
 
    c.index = n
 }
@@ -37,28 +40,23 @@ func (c Choice) ToRenderField(x,y, width int) renderer.RenderField{
    fActive := func(c string) renderer.Renderable {
       return renderer.GenerateNode(c, "active")
    }
-   f := func(c string) renderer.Renderable { return renderer.GenerateNoRenderNode(c)}
 
 
-   rl := make([]renderer.RenderLine, len(c.buttons) + 2)
+   rl := make([]renderer.RenderLine, len(c.buttons) + 1)
    rl[0] = renderer.GenerateLine(
       width - 2,
       []renderer.Renderable{renderer.GenerateNoRenderNode(c.Header)},
    )
-   rl[len(c.buttons) + 1] = renderer.GenerateLine(
-      width - 2,
-      []renderer.Renderable{renderer.GenerateNoRenderNode(c.Footer)},
-   ) 
 
    for i := 0; i < len(c.buttons); i++{
       var c1 renderer.Renderable
       var c2 renderer.Renderable
       if i == c.index {
          c1 = fActive(c.buttons[i])
-         c2 = f(" " + c.labels[i])
+         c2 = c.labels[i]
       } else {
-         c1 = f(c.buttons[i])
-         c2 = f(" " + c.labels[i])
+         c1 = renderer.GenerateNoRenderNode(c.buttons[i])
+         c2 = c.labels[i]
       }
 
       rl[i + 1] = renderer.GenerateLine(width-2, []renderer.Renderable{c1, c2})
@@ -66,5 +64,5 @@ func (c Choice) ToRenderField(x,y, width int) renderer.RenderField{
 
    return renderer.GenerateField(rl)
 }
-func (c Choice) GetSelection() string { return c.labels[c.index]}
 
+func (c Choice) GetIndex() int { return c.index }

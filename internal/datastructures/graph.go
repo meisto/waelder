@@ -15,7 +15,7 @@ type Edge struct {
 	Label       string
 	Target      Node
 	action      func()
-   description string
+   Description string
 }
 
 var nodeIndex int32 = 0
@@ -32,18 +32,19 @@ func GetEdge(root Node, label string, target Node, action func(), description st
 
 type Graph struct {
    Root       Node
-	activeNode Node
+	ActiveNode Node
 	nodes      []Node
 	edges      []Edge
 
 	lookup map[Node][]Edge
 }
 
-func GetGraph(rootNode Node) Graph {
+func GetGraph() Graph {
+   rootNode := GetNode()
 
 	g := Graph{
       Root:       rootNode,
-		activeNode: rootNode,
+		ActiveNode: rootNode,
 		lookup:     make(map[Node][]Edge),
 	}
 
@@ -97,9 +98,9 @@ func (g *Graph) AddEdge(e Edge) bool {
 
 func (g *Graph) Step(key string, d *Data) bool {
 
-	for _, i := range g.lookup[g.activeNode] {
+	for _, i := range g.lookup[g.ActiveNode] {
 		if i.Label == key {
-			g.activeNode = i.Target
+			g.ActiveNode = i.Target
 
 			i.action()
 
@@ -107,5 +108,8 @@ func (g *Graph) Step(key string, d *Data) bool {
 		}
 	}
 	return false
+}
 
+func (g Graph) GetEdges(n Node) []Edge {
+   return g.lookup[n]
 }

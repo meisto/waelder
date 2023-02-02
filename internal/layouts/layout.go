@@ -24,26 +24,22 @@ func FullScreen(height, width int) Layout {
 		TotalHeight: height,
 		TotalWidth:  width,
 		Fields: []Field{
-			{
-				x:           0,
-				y:           0,
-				height:      height,
-				width:       width,
-				mode:        modes.ActiveMode,
-				borders:     [4]bool{true, true, true, true},
-				borderStyle: FancyBorderStyle,
-            scrollIndex: -1,
-			},
+			GetField( 0, 0, height, width, modes.ActiveMode, [4]int{0,0,0,0}, -1, [4]bool{true, true, true, true}, FancyBorderStyle),
 		},
 	}
-
 }
+
+
+   /*
+funcGetField(x, y, width, height int, mode modes.Mode,
+   padding [4]int, scrollIndex int, borders [4]bool, borderStyle BorderStyle) Field {
+}*/
 
 func TwoOneHorizontalSplit(height, width int) Layout {
 	width -= 1
 
 	l1 := int(float64(width) * 0.5)
-	l2 := int(float64(height) * 0.6)
+	l2 := int(float64(height) * 0.8)
 
 	// ─
 
@@ -51,39 +47,50 @@ func TwoOneHorizontalSplit(height, width int) Layout {
 		TotalHeight: height,
 		TotalWidth:  width,
 		Fields: []Field{
-			{
-				x:             0,
-				y:             0,
-				height:        l2,
-				width:         l1,
-				mode:          modes.ActiveMode,
-				borders:       [4]bool{true, false, true, false},
-            padding:       [4]int{0, 0, 0, 0},
-				borderStyle: DoubleBorderStyle,
-            scrollIndex:   -1,
-			},
-			{
-				x:           l1,
-				y:           0,
-				height:      l2,
-				width:       width - l1 + 1,
-				mode:          modes.MdViewMode,
-				borders:       [4]bool{true, true, true, true},
-            padding:       [4]int{1, 2, 1, 2},
-				borderStyle:   DoubleBorderStyle,
-            scrollIndex:   0,
-			},
-			{
-				x:           0,
-				y:           l2 + 0,
-				height:      height - l2,
-				width:       width,
-				mode:        modes.ActionMode,
-				borders:     [4]bool{false, false, true, false},
-            padding:       [4]int{0, 0, 0, 0},
-				borderStyle: DoubleBorderStyle,
-            scrollIndex: -1,
-			},
+			GetField(
+				0,
+			   0,
+				l1,
+				l2,
+				modes.ActiveMode,
+            [4]int{0,0,0,0},
+            100,
+				[4]bool{true, false, true, false},
+				DoubleBorderStyle,
+			),
+			GetField(
+			   l1,
+				0,
+				width - l1 + 1,
+				l2,
+				modes.MdViewMode,
+            [4]int{1,2,1,2},
+            0,
+				[4]bool{true, true, true, true},
+				DoubleBorderStyle,
+			),
+			GetField(
+				0,
+            l2,
+				width,
+				height - l2 - 1,
+				modes.ActionMode,
+            [4]int{0,0,0,0},
+            -1,
+				[4]bool{false, false, true, false},
+				DoubleBorderStyle,
+			),
+			GetField(
+				0,
+            height - 1,
+				width,
+				1,
+				modes.HelpMode,
+            [4]int{0,0,0,0},
+            -1,
+				[4]bool{false, false, false, false},
+				DoubleBorderStyle,
+			),
 		},
 	}
 }

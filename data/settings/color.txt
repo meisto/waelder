@@ -12,6 +12,17 @@ bolditalic,#DDDDDD,,bold,italic
 unknown,#FF0000,#0000Ff
 
 
+enemyUnit,#BB0000,,italic
+neutralUnit,,,italic
+allyUnit,#008800,,italic
+playerUnit,#00FF00,,italic
+enemyUnitActive,#BB0000,#CCCCCC,italic
+neutralUnitActive,,#CCCCCC,italic
+allyUnitActive,#008800,#CCCCCC,italic
+playerUnitActive,#00FF00,#CCCCCC,italic
+
+
+
 style1,#000000,#84AF87,
 dead,#444444,,
 selected,#333333,#CCCCCC,

@@ -16,9 +16,11 @@ import (
 type Mode int64
 
 const (
+   NoMode      Mode = iota
 	ActiveMode  Mode = iota
 	ActionMode  Mode = iota
    MdViewMode  Mode = iota
+   HelpMode    Mode = iota
 )
 
 
@@ -26,4 +28,5 @@ var ModeLookup = map[Mode]func(*termenv.Output, ds.Data, int, int) renderer.Rend
 	ActiveMode: activeView,
 	ActionMode: actionView,
    MdViewMode: mdView,
+   HelpMode: helpView,
 }

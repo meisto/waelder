@@ -39,6 +39,7 @@ type Field struct {
    scrollIndex    int
 	borders        [4]bool
 	borderStyle    BorderStyle
+   startTop       bool
 }
 
 func GetField(x, y, width, height int, mode modes.Mode,
@@ -47,16 +48,17 @@ func GetField(x, y, width, height int, mode modes.Mode,
    var content renderer.RenderField
 
    return Field {
-      x,
-      y,
-      width,
-      height,
-      mode,
-      content,
-      padding,
-      scrollIndex,
-      borders,
-      borderStyle,
+      x: x,
+      y: y,
+      width: width,
+      height: height,
+      mode: mode,
+      content: content,
+      padding: padding,
+      scrollIndex: scrollIndex,
+      borders: borders,
+      borderStyle: borderStyle,
+      startTop: false,
    }
 
 }
@@ -191,7 +193,10 @@ func (f *Field) DrawContent(output *termenv.Output, d ds.Data) {
 	if f.borders[1] { w -= 1 }
 	if f.borders[2] { h -= 1 }
 	if f.borders[3] { hOff += 1; w -= 1 }
-   
-	f.content = modes.ModeLookup[f.mode](output, d, h, w)
-   f.content.RenderBlock(output, f.x + hOff, f.y + vOff, h, true, f.scrollIndex)
+ 
+   if f.mode != modes.NoMode {
+      f.content = modes.ModeLookup[f.mode](output, d, h, w)
+   }
+
+   f.content.RenderBlock(output, f.x + hOff, f.y + vOff, h, !f.startTop, f.scrollIndex)
 }

@@ -6,11 +6,9 @@
 package datastructures
 
 import (
+   "sort"
    "fmt"
    "log"
-	"sort"
-
-   "waelder/internal/datastructures/graph"
 )
 
 // Root data struct
@@ -20,10 +18,11 @@ type Data struct {
 	Enemies  []string
 	Neutrals []string
 
-	CombatLog CombatLog
+	CombatLog   CombatLog
    characters  map[string]Character
-   tg       graph.Graph
+   Graph       Graph
 }
+
 func GetData() Data { 
    return Data {
       Players: []string{},
@@ -42,26 +41,39 @@ func GetData() Data {
          },
       },
       characters: make(map[string]Character),
+      Graph:      GetGraph(),
    } 
 }
 func (d *Data) AddPlayer(c Character) {
+   if c.Affiliation != Player { 
+      log.Fatal(c.Name, " is a ", c.Affiliation, " not a Player.")
+   }
    d.Players = append(d.Players, c.Name)
    d.characters[c.Name] = c
 }
 func (d *Data) AddAlly(c Character) {
+   if c.Affiliation != Ally { 
+      log.Fatal(c.Name, " is a ", c.Affiliation, " not an Ally.")
+   }
    d.Allies = append(d.Allies, c.Name)
    d.characters[c.Name] = c
 }
 func (d *Data) AddEnemy(c Character) {
+   if c.Affiliation != Enemy { 
+      log.Fatal(c.Name, " is a ", c.Affiliation, " not a Enemy.")
+   }
    d.Enemies = append(d.Enemies, c.Name)
    d.characters[c.Name] = c
 }
 func (d *Data) AddNeutral(c Character) {
+   if c.Affiliation != Neutral { 
+      log.Fatal(c.Name, " is a ", c.Affiliation, " not a Neutral.")
+   }
    d.Neutrals = append(d.Neutrals, c.Name)
    d.characters[c.Name] = c
 }
 
-func (data *Data) Apply(a Action) {
+func (data *Data) apply(a Action) {
    data.CombatLog.Current.Actions = 
       append(data.CombatLog.Current.Actions, a)
 
@@ -70,75 +82,23 @@ func (data *Data) Apply(a Action) {
 
       data.characters[i] = a.Apply(c)
    }
-
-
 }
 
-
-// Struct to hold a combat log
-type CombatLog struct {
-	PreviousRounds []Round
-	Current        Round
+func (data Data) GetCharacter(name string) Character {
+   return data.characters[name]
 }
-
-type Round struct {
-	RoundNumber     int
-	Done            []string
-	ActiveCharacter string
-	Pending         []string
-   Actions         []Action
-}
-
-func (round Round) IsDone() bool { return len(round.Pending) == 0 }
-func (round Round) NumberCombatants() int {
-   return len(round.Done) + 1 + len(round.Pending)
-}
-
-/*
-*
-
-	Progress the round.
-
-	Returns true if a state transition was done, false if round is done
-
-*
-*/
-func (data *Data) Step() {
-
-   round := &data.CombatLog.Current
-
-	// Break
-	if round.IsDone() {
-      // Round is done, prepare next round and return
-		data.PrepareNextRound()
-      return
-	}
-
-	round.Done = append(round.Done, round.ActiveCharacter)
-
-	// Sort by initiative
-	comp := func(i, j int) bool {
-		return data.characters[round.Pending[i]].Stats.Initiative > 
-         data.characters[round.Pending[i]].Stats.Initiative
-	}
-	sort.Slice(round.Pending, comp)
-
-	round.ActiveCharacter = round.Pending[0]
-	round.Pending = round.Pending[1:]
-}
-
 func (data *Data) PrepareNextRound() {
+
    if !data.CombatLog.Current.IsDone() { return }
 
-
-   currentRound   := data.CombatLog.Current
+   rn := data.CombatLog.Current.RoundNumber
 
    // Only add current round to log if it was actually initialized
-   if data.CombatLog.Current.RoundNumber >= 0 {
+   if rn >= 0 {
       data.CombatLog.PreviousRounds = 
-         append(data.CombatLog.PreviousRounds, currentRound)
+         append(data.CombatLog.PreviousRounds, data.CombatLog.Current)
    }
-   // Copy slice as not to alter the old order
+
    pending := data.Players
    pending = append(pending, data.Allies...)
    pending = append(pending, data.Enemies...)
@@ -151,17 +111,83 @@ func (data *Data) PrepareNextRound() {
          data.characters[pending[i]].Stats.Initiative
 	})
 
-   log.Print(fmt.Sprintf("Prepared round number %d", currentRound.RoundNumber + 1))
 
+   // Log
+   log.Print(fmt.Sprintf("Prepared round number %d", rn + 1))
+
+
+   // Jump to first character that is not already dead
+   var i = 0
+   for ; i < len(pending); i ++ {
+      if !data.GetCharacter(pending[i]).IsDead() {break}
+   }
+
+
+   // Create new current round
 	data.CombatLog.Current = Round{
-		RoundNumber:     currentRound.RoundNumber + 1,
-		Done:             []string{},
-		ActiveCharacter:  pending[0],
-		Pending:          pending[1:],
+		RoundNumber:      rn + 1,
+      Done:             pending[:i],
+		ActiveCharacter:  pending[i],
+		Pending:          pending[i+1:],
       Actions:          []Action{},
-	}
+   }
 }
 
-func (data Data) GetCharacter(name string) Character {
-   return data.characters[name]
+/*
+*
+
+	Progress the round.
+
+	Returns true if a state transition was done, false if round is done
+
+*
+*/
+func (data *Data) Step(ac Action) {
+   data.apply(ac)
+
+   data.StepWoAction()
+}
+
+func (data *Data) StepWoAction() {
+
+   round := &data.CombatLog.Current
+
+	if round.IsDone() {
+      // Round is done, prepare next round and return
+		data.PrepareNextRound()
+      return
+	}
+
+
+	round.Done = append(round.Done, round.ActiveCharacter)
+
+	// Sort remaining characters by initiative 
+	sort.Slice(round.Pending, func(i, j int) bool {
+		return data.characters[round.Pending[i]].Stats.Initiative > 
+         data.characters[round.Pending[i]].Stats.Initiative
+	})
+
+	round.ActiveCharacter = round.Pending[0]
+	round.Pending = round.Pending[1:]
+
+   // Recursive call if next character is already dead
+   if data.GetCharacter(data.CombatLog.Current.ActiveCharacter).IsDead() {
+      data.StepWoAction()
+   }
+}
+
+func (data Data) IsCombatOver() bool {
+   { // Check if all enemies are dead
+      isAlive := false
+      for i := 0; i < len(data.Enemies); i ++ {
+         ch := data.GetCharacter(data.Enemies[i])
+         if !ch.IsDead() {
+            isAlive = true
+            break
+         }
+      }
+      if !isAlive { return true }  
+   }
+
+   return false
 }

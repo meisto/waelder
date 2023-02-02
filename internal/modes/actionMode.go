@@ -22,9 +22,7 @@ func actionView(output *termenv.Output, d ds.Data, height int, width int) render
             res,
             renderer.GenerateLine(
                width,
-               []renderer.Renderable{
-                  renderer.GenerateNode(e.Display(), "default"),
-               },
+               []renderer.Renderable{ e.Display(d), },
             ),
          )
       }
