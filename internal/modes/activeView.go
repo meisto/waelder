@@ -147,7 +147,7 @@ func drawLine(
 	initiative := fmt.Sprintf("%s %2d", sprintIcon, char.Stats.Initiative)
 	health := FormatHealthString(10, hpPercentage, isActive, heartIcon)
 	healthNumeral := fmt.Sprintf("%03d/%03d", hp, char.Stats.Max_hp)
-   rk := fmt.Sprintf("%s %3d", armourIcon, char.Stats.Armour)
+   rk := fmt.Sprintf("%s %03d", armourIcon, char.Stats.Armour)
 
 
    // Function to style elements

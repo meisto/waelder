@@ -4,6 +4,7 @@
 // Description: -
 // ======================================================================
 package layouts
+/*
 
 import (
    "strings"
@@ -17,6 +18,7 @@ import (
 )
 
 func PopUp(
+	layout Layout,
 	output *termenv.Output,
 	content renderer.RenderField,
 	x int,
@@ -52,7 +54,7 @@ func PopUp(
 }
 
 func ReadLinePopUp(
-	output *termenv.Output,
+	layout Layout,
 	content renderer.RenderField,
 	x int,
 	y int,
@@ -62,11 +64,11 @@ func ReadLinePopUp(
    width := content.GetWidth()
 
 	f := Field{
-		x:           x,
-		y:           y,
-		width:       width + 2,
-		height:      height + 2,
-		borders:     [4]bool{true, true, true, true},
+		x:             x,
+		y:             y,
+		width:         width + 2,
+		height:        height + 2,
+		borders:       [4]bool{true, true, true, true},
 		borderStyle:   DoubleBorderStyle,
       padding:       [4]int{0,0,0,0},
       content:       content,
@@ -85,6 +87,4 @@ func ReadLinePopUp(
    
    return <- io.ReadLine(true)
 }
-
-
-
+*/

@@ -18,14 +18,6 @@ import (
 	"waelder/internal/config"
 )
 
-type FieldInterface interface {
-   GetMode() modes.Mode
-   GetBorder() BorderStyle
-   SetBorder(*FieldInterface, BorderStyle)
-   DrawBorder(*termenv.Output)
-   DrawContent(*termenv.Output, ds.Data)
-}
-
 type Field struct {
 	x              int
 	y              int
@@ -40,28 +32,20 @@ type Field struct {
 	borders        [4]bool
 	borderStyle    BorderStyle
    startTop       bool
+
+   output         *termenv.Output
 }
 
-func GetField(x, y, width, height int, mode modes.Mode,
-   padding [4]int, scrollIndex int, borders [4]bool, borderStyle BorderStyle) Field {
-   
-   var content renderer.RenderField
-
-   return Field {
-      x: x,
-      y: y,
-      width: width,
-      height: height,
-      mode: mode,
-      content: content,
-      padding: padding,
-      scrollIndex: scrollIndex,
-      borders: borders,
-      borderStyle: borderStyle,
-      startTop: false,
-   }
-
+type PopupField struct {
+   x        int
+   y        int
+   content  renderer.RenderField
 }
+
+func NewPopupField(x int, y int, content renderer.RenderField) PopupField{
+   return PopupField {x,y,content}
+}
+
 
 
 func (f *Field) ScrollDown() {
@@ -79,7 +63,7 @@ func (f *Field) ScrollUp() {
 func (f Field) GetMode() modes.Mode { return f.mode }
 func (f *Field) SetBorder(bs BorderStyle) { f.borderStyle= bs }
 func (f Field) GetBorder() BorderStyle { return f.borderStyle }
-func (f Field) DrawBorder(output *termenv.Output) {
+func (f Field) DrawBorder() {
 
 	// Get border style elements
 	t := f.borderStyle.upperBorder
@@ -93,8 +77,8 @@ func (f Field) DrawBorder(output *termenv.Output) {
 	bl := f.borderStyle.llCorner
 
 	g := func(x, y int, style string) {
-		output.MoveCursor(x+1, y+1)
-		fmt.Print(output.String(style))
+		f.output.MoveCursor(x+1, y+1)
+		fmt.Print(f.output.String(style))
 	}
 
 	// Borders
@@ -177,12 +161,26 @@ func (f Field) DrawBorder(output *termenv.Output) {
    }
 }
 
-
-
-func (f *Field) DrawContent(output *termenv.Output, d ds.Data) {
+func (f *Field) UpdateContent(d ds.Data) {
 	// Remainig width
 	h := f.height  - f.padding[0] - f.padding[2]
 	w := f.width   - f.padding[1] - f.padding[3]
+
+   // Factor in borders
+	if f.borders[0] { h -= 1 }
+	if f.borders[1] { w -= 1 }
+	if f.borders[2] { h -= 1 }
+	if f.borders[3] { w -= 1 }
+
+ 
+   if f.mode != modes.NoMode {
+      f.content = modes.ModeLookup[f.mode](f.output, d, h, w)
+   }
+}
+
+func (f *Field) DrawContent() {
+	// Remainig width
+	h := f.height  - f.padding[0] - f.padding[2]
 
 	// Offsets
 	vOff := f.padding[0]
@@ -190,13 +188,13 @@ func (f *Field) DrawContent(output *termenv.Output, d ds.Data) {
 
    // Factor in borders
 	if f.borders[0] { vOff += 1; h -= 1 }
-	if f.borders[1] { w -= 1 }
 	if f.borders[2] { h -= 1 }
-	if f.borders[3] { hOff += 1; w -= 1 }
- 
-   if f.mode != modes.NoMode {
-      f.content = modes.ModeLookup[f.mode](output, d, h, w)
-   }
 
-   f.content.RenderBlock(output, f.x + hOff, f.y + vOff, h, !f.startTop, f.scrollIndex)
+   f.content.RenderBlock(
+      f.output,
+      f.x + hOff,
+      f.y + vOff,
+      h, !f.startTop,
+      f.scrollIndex,
+   )
 }

@@ -21,7 +21,7 @@ import (
 	"waelder/internal/events"
 )
 
-func NewRun(dbHandle *sql.DB, elchan chan string, output *termenv.Output) {
+func NewRun(dbHandle *sql.DB, eventChannel chan string, output *termenv.Output) {
    log.Print("Start Run")
 
 	// TODO: Replace the defaults with a loading procedure
@@ -54,8 +54,9 @@ func NewRun(dbHandle *sql.DB, elchan chan string, output *termenv.Output) {
 	height -= 1
 
    // Set initial layout
-	layout := layouts.TwoOneHorizontalSplit(height, width)
-
+	output.AltScreen()
+	output.ClearScreen()
+	layout := layouts.TwoOneHorizontalSplit(height, width, output, data)
 
    InitialNode := data.Graph.Root
    tg := &(data.Graph)
@@ -75,39 +76,36 @@ func NewRun(dbHandle *sql.DB, elchan chan string, output *termenv.Output) {
    */
 
    // TODO: Placeholders
-   ActionNode := ds.GetNode()
-   add(InitialNode, "a", ActionNode, func(){
-      layout.UpdateMode(output, data, modes.HelpMode)
-   }, "Other Action")
-
-   add(ActionNode, "d", InitialNode, func(){}, "dash")
-   add(ActionNode, "f", InitialNode, func(){}, "disengage")
-   add(ActionNode, "g", InitialNode, func(){}, "dodge")
-   add(ActionNode, "h", InitialNode, func(){}, "help")
-   add(ActionNode, "j", InitialNode, func(){}, "hide")
-   add(ActionNode, "k", InitialNode, func(){}, "ready")
-   add(ActionNode, "l", InitialNode, func(){}, "search")
-   add(ActionNode, "v", InitialNode, func(){}, "use object")
 
 
-   add(InitialNode, "b", InitialNode, func(){}, "React")
-   add(InitialNode, "n", InitialNode, func(){}, "Bonus Action")
-   add(InitialNode, "m", InitialNode, func(){}, "Apply State")
-   add(InitialNode, "y", InitialNode, func(){}, "Redo Action")
-   add(InitialNode, "x", InitialNode, func(){}, "Undo Action.")
+   { // Add actions
+      ActionNode := ds.GetNode()
+      add(InitialNode, "a", ActionNode, func(){
+         layout.UpdateMode(data, modes.HelpMode)
+      }, "Action")
+
+      f := func(key string, g func(), desc string) {
+         add(ActionNode, key, InitialNode, g, desc)
+      }
+      f( "a", func() {getAttack(&data, layout, eventChannel)}, "Attack")
+      f( "d", func() {getDash(&data,layout)}, "dash")
+      f( "f", func() {getDisengage(&data, layout)}, "disengage")
+      f( "g", func() {getDodge(&data, layout)}, "dodge")
+      f( "h", func() {getHelp(&data, layout)}, "help")
+      f( "j", func() {getHide(&data, layout)}, "hide")
+      f( "k", func() {getReady(&data, layout)}, "ready")
+      f( "l", func() {getSearch(&data, layout)}, "search")
+      f( "v", func() {getUseObject(&data, layout)}, "use object")
+   }
 
 
-   // Add popup windows
-   addActionPopupSequence(
-      output,
-      &data,
-      InitialNode,
-      InitialNode,
-      width / 2 - 25, // x
-      height / 2, // y
-      50, // width
-      layout,
-   )
+   placeholder := func() {data.StepWoAction(); layout.Reset(data)}
+   add(InitialNode, "b", InitialNode, placeholder, "React")
+   add(InitialNode, "n", InitialNode, placeholder, "Bonus Action")
+   add(InitialNode, "m", InitialNode, placeholder, "Apply State")
+   add(InitialNode, "y", InitialNode, placeholder, "Redo Action")
+   add(InitialNode, "x", InitialNode, placeholder, "Undo Action.")
+
 
    { // Markdown viewer
       n2 := ds.GetNode()
@@ -115,55 +113,54 @@ func NewRun(dbHandle *sql.DB, elchan chan string, output *termenv.Output) {
          var f *layouts.Field = &layout.Fields[1]
 
          f.SetBorder(layouts.DoubleBorderStyle.Style("darkGreenFg"))
-         f.DrawBorder(output)
-         layout.UpdateMode(output, data, modes.HelpMode)
+         f.DrawBorder()
+         layout.UpdateMode(data, modes.HelpMode)
       }, "Focus Stat Block")
 
       add(n2, "k", n2, func() {
          layout.Fields[1].ScrollUp()
-         layout.Fields[1].DrawContent(output, data)
-         layout.Fields[1].DrawBorder(output)
+         layout.Fields[1].UpdateContent(data)
+         layout.Fields[1].DrawContent()
+         layout.Fields[1].DrawBorder()
       }, "Scroll Up")
 
       add(n2, "j", n2, func() {
          layout.Fields[1].ScrollDown()
-         layout.Fields[1].DrawContent(output, data)
-         layout.Fields[1].DrawBorder(output)
+         layout.Fields[1].UpdateContent(data)
+         layout.Fields[1].DrawContent()
+         layout.Fields[1].DrawBorder()
       }, "Scroll Down")
 
       add(n2, "i", InitialNode, func() {
          var f *layouts.Field = &layout.Fields[1]
 
          f.SetBorder(layouts.DoubleBorderStyle)
-         f.DrawBorder(output)
-         layout.UpdateMode(output, data, modes.HelpMode)
+         f.DrawBorder()
+         layout.UpdateMode(data, modes.HelpMode)
       }, "Relinquish focus")
    }
 
 	// Start trigger goroutines
-	go events.KeyStrokeEvent(elchan)
-
-
-   // Setup screen
-	output.AltScreen()
-	output.ClearScreen()
-	layout.Reset(output, data)
+	go events.KeyStrokeEvent(eventChannel)
 
    // Main loop
 	for !data.IsCombatOver() {
-		msg, ok := <-elchan
+      layout.Reset(data)
+		msg, ok := <- eventChannel
 		if !ok {
 			break
 		}
 
       // Rebuild layout after size change
+      /*
 	   w2, h2, _ := term.GetSize(0)
       if width != w2 || height != h2 - 1{
          width = w2
          height = h2 - 1
-         layout = layouts.TwoOneHorizontalSplit(height, width)
-         layout.Reset(output, data)
+         layout = layouts.TwoOneHorizontalSplit(height, width, output)
+         layout.Reset(data)
       }
+      */
 
       // Pass the event to the main traversal graph
 		tg.Step(msg, &data)

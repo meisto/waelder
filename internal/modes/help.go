@@ -21,7 +21,6 @@ func helpView(
    windowHeight int,
    windowWidth int,
 ) renderer.RenderField {
-
    dist := renderer.GenerateNode(" | ", "dead")
    
    var s []renderer.Renderable = []renderer.Renderable{
@@ -60,6 +59,4 @@ func helpView(
    return renderer.GenerateField([]renderer.RenderLine{
       renderer.GenerateLine(windowWidth, s),
    })
-
 }
-

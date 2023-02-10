@@ -17,9 +17,9 @@ neutralUnit,,,italic
 allyUnit,#008800,,italic
 playerUnit,#00FF00,,italic
 enemyUnitActive,#BB0000,#CCCCCC,italic
-neutralUnitActive,,#CCCCCC,italic
+neutralUnitActive,#333333,#CCCCCC,italic
 allyUnitActive,#008800,#CCCCCC,italic
-playerUnitActive,#00FF00,#CCCCCC,italic
+playerUnitActive,#009900,#CCCCCC,italic
 
 
 

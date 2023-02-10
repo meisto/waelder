@@ -149,8 +149,12 @@ func (data *Data) Step(ac Action) {
 }
 
 func (data *Data) StepWoAction() {
-
    round := &data.CombatLog.Current
+
+   
+   // Give the actice previously active character its reaction back
+   ch := data.GetCharacter(round.ActiveCharacter)
+   ch.Stats.HasReaction = true
 
 	if round.IsDone() {
       // Round is done, prepare next round and return

@@ -7,35 +7,110 @@ package root
 
 import (
    "fmt"
+   "log"
    "strconv"
 
-   "github.com/muesli/termenv"
-
+   "waelder/internal/asciiart"
 	ds "waelder/internal/datastructures"
 	"waelder/internal/layouts"
    "waelder/internal/modes"
    "waelder/internal/renderer"
-   "waelder/internal/asciiart"
+   "waelder/internal/wio"
 )
 
-func addActionPopupSequence(
-   output   *termenv.Output,
-   data     *ds.Data,
-   n0       ds.Node,
-   nLast    ds.Node,
-   x        int,
-   y        int,
-   width    int,
-   layout   layouts.Layout,
+func getDodge(
+   data *ds.Data,
+   layout layouts.Layout,
 ) {
-   // Get Intermediate nodes
-   n1 := ds.GetNode()
-   n2 := ds.GetNode()
-   n3 := ds.GetNode()
+   ac := ds.Dodge{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+   }
+   turn(ac, data, layout)
+}
+func getHelp(
+   data *ds.Data,
+   layout layouts.Layout,
+) {
+   ac := ds.Help{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+   }
+   turn(ac, data, layout)
+}
+func getHide(
+   data *ds.Data,
+   layout layouts.Layout,
+) {
+   ac := ds.Hide{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+   }
+   turn(ac, data, layout)
+}
+func getReady(
+   data *ds.Data,
+   layout layouts.Layout,
+) {
+   ac := ds.Ready{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+   }
+   turn(ac, data, layout)
+}
+func getSearch(
+   data *ds.Data,
+   layout layouts.Layout,
+) {
+   ac := ds.Search{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+   }
+   turn(ac, data, layout)
+}
+func getUseObject(
+   data *ds.Data,
+   layout layouts.Layout,
+) {
+   ac := ds.UseObject{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+   }
+   turn(ac, data, layout)
+}
 
-   tg := &(data.Graph)
+func getDisengage(
+   data *ds.Data,
+   layout layouts.Layout,
+) {
+   ac := ds.Disengage{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+   }
+   turn(ac, data, layout)
+}
 
-   c1Header := " Whom should %s attack?"
+func getDash(
+   data *ds.Data,
+   layout layouts.Layout,
+) {
+   ac := ds.Dash{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+   }
+   turn(ac, data, layout)
+}
+
+
+func getAttack(
+   data     *ds.Data,
+   layout   layouts.Layout,
+   eventChannel chan string,
+) {
+
+   width := 40
+   x := layout.TotalWidth / 2 - width / 2
+   y := 20
 
 
    // Choice module to pick target
@@ -47,12 +122,20 @@ func addActionPopupSequence(
       l := len(data.Players) + len(data.Allies) + len(data.Enemies) +
          len(data.Neutrals)
       buttons := []string{
-         "1", "2", "3", "4", "5", "6","7","8","9","0","q","w","e","r","t","z","u","i","l","y"}
-      for i := 0; i < len(buttons); i++ {buttons[i] = fmt.Sprintf(" %s ", buttons[i])}
+         "1", "2", "3", "4", "5", "6","7","8","9","0","q","w","e","r","t",
+         "z","u","i","l","y",
+      }
+
+      for i := 0; i < len(buttons); i++ {
+         buttons[i] = fmt.Sprintf(" %s ", buttons[i])
+      }
       styledLabels := make([]renderer.Renderable, len(labels))
 
       f := func(x renderer.Renderable) renderer.Renderable {
-         return renderer.GenerateLine(x.Length() + 1,[]renderer.Renderable{renderer.GenerateNoRenderNode(" "), x})
+         return renderer.GenerateLine(
+            x.Length() + 1,
+            []renderer.Renderable{renderer.GenerateNoRenderNode(" "), x},
+         )
       }
 
       i := 0
@@ -78,7 +161,10 @@ func addActionPopupSequence(
       }
 
       c1 = modes.GetChoice(
-         fmt.Sprintf(c1Header, data.CombatLog.Current.ActiveCharacter),
+         fmt.Sprintf(
+            " Whom should %s attack?",
+            data.CombatLog.Current.ActiveCharacter,
+         ),
          buttons[:l],
          styledLabels,
       )
@@ -88,17 +174,29 @@ func addActionPopupSequence(
    // Choice module to pick target
    var c2 modes.Choice
    {
-      b := []string{" 1 "," 2 "," 3 "," 4 "}
-      s1 := func( s string) renderer.Renderable{ return renderer.GenerateNode(s, "italic")}
-      s2 := func( s string) renderer.Renderable{ return renderer.GenerateNode(s, "bold")}
-      labels := []renderer.Renderable{
-         renderer.GenerateLine(width - 5, []renderer.Renderable{s1(" Meele    "), s2(asciiart.OneLineSword)}),
-         renderer.GenerateLine(width - 5, []renderer.Renderable{s1(" Ranged   "), s2(asciiart.OneLineArrow)}),
-         renderer.GenerateLine(width - 5, []renderer.Renderable{s1(" Magical  "), s2(asciiart.OneLineFire)}),
-         renderer.GenerateLine(width - 5, []renderer.Renderable{s1(" Healing  "), s2(asciiart.OneLineFire)}),
+
+      f := func(a, b string) renderer.RenderLine {
+         return renderer.GenerateLine(
+            width -5,
+            []renderer.Renderable{
+               renderer.GenerateNode(a, "italic"),
+               renderer.GenerateNode(b, "bold"),
+            },
+         )
       }
 
-      c2 = modes.GetChoice("Which mode of attack?", b, labels)
+      labels := []renderer.Renderable{
+         f(" Meele    ", asciiart.OneLineSword),
+         f(" Ranged   ", asciiart.OneLineArrow),
+         f(" Magical  ", asciiart.OneLineFire),
+         f(" Healing  ", asciiart.OneLineFire),
+      }
+
+      c2 = modes.GetChoice(
+         "Which mode of attack?",
+         []string{" 1 "," 2 "," 3 "," 4 "},
+         labels,
+      )
    }
 
    var c3 modes.Choice
@@ -113,135 +211,115 @@ func addActionPopupSequence(
    }
  
    redrawChoicePopup := func(c modes.Choice) {
-      layouts.PopUp(output, c.ToRenderField(x,y,width) , x, y, *data)
+      con := c.ToRenderField(x,y,width)
+      pop := layouts.NewPopupField(x,y, con)
+      log.Print(con.GetWidth(), " ", con.GetHeight())
+      layout.DisplayPopup(pop)
    }
 
 
-   // Add Graph traversal edges
-	tg.AddEdge(ds.GetEdge( n0, "A", n1, func() {
-         c1.Header = fmt.Sprintf(c1Header, data.CombatLog.Current.ActiveCharacter)
+   { // Poll for target
+      for {
          redrawChoicePopup(c1)
-      },
-      "Attack",
-   ))
+         s, ok := <- eventChannel
+         if !ok { return }
+         if s == "<ENTER>" { break }
 
-
-   // First popup control
-   {
-      f := func(s string, g func(), desc string) { 
-         tg.AddEdge(ds.GetEdge(n1, s, n1, g, desc)) 
+         switch s {
+            case "j": c1.Forward()
+            case "k": c1.Backward()
+            case "0": c1.GoTo(9)
+            case "1": c1.GoTo(0)
+            case "2": c1.GoTo(1)
+            case "3": c1.GoTo(2)
+            case "4": c1.GoTo(3)
+            case "5": c1.GoTo(4)
+            case "6": c1.GoTo(5)
+            case "7": c1.GoTo(6)
+            case "8": c1.GoTo(7)
+            case "9": c1.GoTo(8)
+         }
       }
+   }
+   layout.Reset(*data)
 
-      f("j", func() {c1.Forward();  redrawChoicePopup(c1)}, "Next")
-      f("k", func() {c1.Backward();  redrawChoicePopup(c1)}, "Previous")
-      f("0", func() {c1.GoTo(9); redrawChoicePopup(c1)}, "Select 0")
-      f("1", func() {c1.GoTo(0); redrawChoicePopup(c1)}, "Select 1")
-      f("2", func() {c1.GoTo(1); redrawChoicePopup(c1)}, "Select 2")
-      f("3", func() {c1.GoTo(2); redrawChoicePopup(c1)}, "Select 3")
-      f("4", func() {c1.GoTo(3); redrawChoicePopup(c1)}, "Select 4")
-      f("5", func() {c1.GoTo(4); redrawChoicePopup(c1)}, "Select 5")
-      f("6", func() {c1.GoTo(5); redrawChoicePopup(c1)}, "Select 6")
-      f("7", func() {c1.GoTo(6); redrawChoicePopup(c1)}, "Select 7")
-      f("8", func() {c1.GoTo(7); redrawChoicePopup(c1)}, "Select 8")
-      f("9", func() {c1.GoTo(8); redrawChoicePopup(c1)}, "Select 9")
 
-      tg.AddEdge(ds.GetEdge(n1, "<ENTER>", n2, func(){
-         layout.Reset(output, *data)
+   { // Poll for attack mode
+      for {
          redrawChoicePopup(c2)
-      }, "Confirm"))
-   }
+         s, ok := <- eventChannel
+         if !ok { return }
 
+         if s == "<ENTER>" { break }
 
-   // Second popup control
-   {
-      f := func(s string, g func(), desc string) { 
-         tg.AddEdge(ds.GetEdge(n2, s, n2, g, desc)) 
+         switch s {
+            case "j": c2.Forward()
+            case "k": c2.Backward()
+            case "1": c2.GoTo(0);
+            case "2": c2.GoTo(1);
+            case "3": c2.GoTo(2);
+            case "4": c2.GoTo(3);
+         }
       }
-      f("j", func() {c2.Forward(); redrawChoicePopup(c2)}, "Next")
-      f("k", func() {c2.Backward(); redrawChoicePopup(c2)}, "Previous")
-      f("1", func() {c2.GoTo(0); redrawChoicePopup(c2)}, "Meele")
-      f("2", func() {c2.GoTo(1); redrawChoicePopup(c2)}, "Ranged")
-      f("3", func() {c2.GoTo(2); redrawChoicePopup(c2)}, "Magic")
-      f("4", func() {c2.GoTo(3); redrawChoicePopup(c2)}, "Healing")
+   }
+   layout.Reset(*data)
 
-      tg.AddEdge(ds.GetEdge(n2, "<ENTER>", n3, func(){
-         layout.Reset(output, *data)
+
+   { // Poll for hit
+      for {
          redrawChoicePopup(c3)
-      }, "tmp"))
-   }
+         s, ok := <- eventChannel
+         if !ok { return }
+         if s == "<ENTER>" { break }
 
-
-   // Third popup control
-   {
-      f := func(s string, g func(), desc string) { 
-         tg.AddEdge(ds.GetEdge(n3, s, n3, g, desc)) 
+         switch s {
+            case "j": c3.Forward();
+            case "k": c3.Backward();
+            case "1": c3.GoTo(0);
+            case "2": c3.GoTo(1);
+         }
       }
-
-      f("j", func() {c3.Forward(); redrawChoicePopup(c3)}, "Next")
-      f("k", func() {c3.Backward(); redrawChoicePopup(c3)}, "Previous")
-      f("1", func() {c3.GoTo(0); redrawChoicePopup(c3)}, "Yes")
-      f("2", func() {c3.GoTo(1); redrawChoicePopup(c3)}, "No")
-
    }
+   layout.Reset(*data)
 
 
-   tg.AddEdge(
-      ds.GetEdge(
-         n3,
-         "<ENTER>",
-         nLast,
-         func() {
-            layout.Reset(output, *data)
-
-
-            var n int = 0
-
-            // Prompt for damage if not hit
-            if c3.GetIndex() == 0 {
-               prompt := renderer.GenerateNoRenderNode("How much damage did they deal?")   
-               content := renderer.GenerateField(
-                  []renderer.RenderLine{
-                     renderer.GenerateLineFromOne(width - 2, prompt),
-                  },
-               )
-               rl := layouts.ReadLinePopUp(output, content, x, y, *data)
-
-               // Try to cast string to int
-               n2, err := strconv.Atoi(rl)
-               n = n2
-               for err != nil || n < 0 || n > 1000 {
-                  prompt = renderer.GenerateNoRenderNode("Illegal input, please try again. ")
-
-                  content = renderer.GenerateField(
-                     []renderer.RenderLine{
-                        renderer.GenerateLineFromOne(
-                           width - 2,
-                           prompt,
-                        ),
-                     },
-                  )
-                  rl := layouts.ReadLinePopUp(output, content, x, y, *data)
-                  n, err = strconv.Atoi(rl)
-               }
-            } 
-            
-            at := ds.Attack{
-               Round: data.CombatLog.Current.RoundNumber,
-               Source: data.CombatLog.Current.ActiveCharacter,
-               Targets: []string{labels[c1.GetIndex()]},
-               HasHit: c3.GetIndex() == 0,
-               Damage: n,
-               Range: ds.ToAttackType(c3.GetIndex()),
-            }
-
-            // AAAAAAAA
-            data.Step(at)
-
-
-
-            layout.Reset(output, *data)
-            
+   // Prompt for damage if not hit
+   var damage int = 0
+   if c3.GetIndex() == 0 {
+      content := renderer.GenerateField(
+         []renderer.RenderLine{
+            renderer.GenerateLineFromOne(
+               width - 2,
+               renderer.GenerateNoRenderNode("How much damage did they deal?"),
+            ),
          },
-      "tmp"),
-   )
+      )
+      layout.DisplayPopup(layouts.NewPopupField(x,y, content))
+
+      // Try to cast string to int
+      n, err := strconv.Atoi(<- wio.ReadLine(true))
+      for err != nil || n < 0 || n > 1000 {
+         content = renderer.GenerateField(
+            []renderer.RenderLine{
+               renderer.GenerateLineFromOne(
+                  width - 2,
+                  renderer.GenerateNoRenderNode("Illegal input, ty again."),
+               ),
+            },
+         )
+         layout.DisplayPopup(layouts.NewPopupField(x, y, content))
+         n, err = strconv.Atoi(<- wio.ReadLine(true))
+      }
+      damage = n
+   } 
+
+   at :=ds.Attack{
+      Round: data.CombatLog.Current.RoundNumber,
+      Source: data.CombatLog.Current.ActiveCharacter,
+      Targets: []string{labels[c1.GetIndex()]},
+      HasHit: c3.GetIndex() == 0,
+      Damage: damage,
+      Range: ds.ToAttackType(c3.GetIndex()),
+   }
+   turn(at, data, layout)   
 }
