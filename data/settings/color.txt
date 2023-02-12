@@ -45,4 +45,6 @@ MarkdownHeader3,#000000,#87AF87
 MarkdownHeader4,#000000,#87AF87
 MarkdownHeader5,#000000,#87AF87
 MarkdownHeader6,#000000,#87AF87
+MarkdownOrderedList,,#444444,italic
+MarkdownUnorderedList,,#505050,italic
 

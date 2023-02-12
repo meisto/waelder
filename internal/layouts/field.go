@@ -189,12 +189,14 @@ func (f *Field) DrawContent() {
    // Factor in borders
 	if f.borders[0] { vOff += 1; h -= 1 }
 	if f.borders[2] { h -= 1 }
+	if f.borders[3] { hOff += 1 }
 
    f.content.RenderBlock(
       f.output,
       f.x + hOff,
       f.y + vOff,
-      h, !f.startTop,
+      h, 
+      !f.startTop,
       f.scrollIndex,
    )
 }
