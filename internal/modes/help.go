@@ -9,14 +9,11 @@ import (
    "fmt"
    "sort"
 
-   "github.com/muesli/termenv"
-
    ds "waelder/internal/datastructures"
    "waelder/internal/renderer"
 )
 
 func helpView(
-   output *termenv.Output,
    d ds.Data,
    windowHeight int,
    windowWidth int,

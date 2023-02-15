@@ -6,9 +6,9 @@
 package root
 
 import(
-   "time"
    "path"
    "database/sql"
+   "log"
 
    "github.com/muesli/termenv"
 
@@ -17,19 +17,39 @@ import(
    ds "waelder/internal/datastructures"
 	"waelder/internal/layouts"
 	"waelder/internal/wio"
+	"waelder/internal/modes"
+   "waelder/internal/events"
 )
 
 func PreCombat(dbHandle *sql.DB, output *termenv.Output) ds.Data {
-   
-
 	width, height, _ := term.GetSize(0)
 	height -= 1
 
 	data := ds.GetData()
    l := layouts.Fullscreen(height, width, output, data)
    output.ClearScreen()
-   l.Reset(data)
-   time.Sleep(10 * time.Second)
+
+   eventChannel := make(chan string)
+   go events.KeyStrokeEvent(eventChannel)
+
+   modes.Markdown.ActivateMultiselect()
+
+   log.Print("Starting loop")
+   for true {
+      l.Reset(data)
+ 
+      msg, ok := <- eventChannel
+      if !ok { 
+         break 
+      } 
+
+      switch msg {
+         case "<TAB>": modes.Markdown.SelectNext()
+         case "<ENTER>": modes.Markdown.ActivateElement()
+      }
+
+   }
+
 
 	// TODO: Replace the defaults with a loading procedure
 	root := "/home/tobias/Documents/code/golang/src/waelder"

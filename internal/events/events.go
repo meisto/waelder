@@ -38,7 +38,6 @@ func KeyStrokeEvent(ch chan<- string) {
 			close(ch)
 
 			return
-
 		}
 
 		a, exists := triggerMap[b]

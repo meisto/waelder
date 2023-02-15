@@ -47,4 +47,11 @@ MarkdownHeader5,#000000,#87AF87
 MarkdownHeader6,#000000,#87AF87
 MarkdownOrderedList,,#444444,italic
 MarkdownUnorderedList,,#505050,italic
-
+MarkdownBlockquote,,#449944,
+MarkdownFocusedElement,,#999999,
+MarkdownToggleElement,,#555555,
+MarkdownToggleElementActive,,#000099,
+MarkdownInputField,,#000099,
+MarkdownInputFieldFocused,,#0000FF,
+MarkdownActionField,,#330000,
+MarkdownActionFieldFocused,,#990000,

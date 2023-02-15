@@ -6,13 +6,11 @@
 package modes
 
 import (
-	"github.com/muesli/termenv"
-
 	ds "waelder/internal/datastructures"
 	"waelder/internal/renderer"
 )
 
-func actionView(output *termenv.Output, d ds.Data, height int, width int) renderer.RenderField {
+func actionView(d ds.Data, height int, width int) renderer.RenderField {
 
    var res []renderer.RenderLine
 

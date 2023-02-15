@@ -9,11 +9,13 @@ import (
 	"bufio"
    "log"
 	"os"
+   "unicode/utf8"
 )
 
 var buffer []rune
 var isReadLine bool = false
 var isDisplayLine bool = false
+var maxLength int = 10
 var reader *bufio.Reader = bufio.NewReader(os.Stdin)
 
 var readLineOut chan string = make(chan string)
@@ -25,9 +27,11 @@ func ReadByte() rune {
    if err != nil {
       log.Fatal("Unknown error.")
    }
+
+   log.Print(x)
+   log.Print(utf8.DecodeRune(x))
    
    if numRead == 3 {
-      log.Print("Haha")
       return ' '
    }
 
@@ -35,28 +39,32 @@ func ReadByte() rune {
 
    // Hack(ish) code following
    if isReadLine {
-
+      var buffer string
       for a != '\r' {
 
          if isDisplayLine {print(string(a))}
 
-         buffer = append(buffer, rune(a))
+         buffer += string(a)
 
-         x = make([]byte, 3)
+         x := make([]byte, 3)
          numRead, err := os.Stdin.Read(x)
          if err != nil {
             log.Fatal("Unknown error.")
          }
-         if numRead != 1 {continue}
+         if numRead != 1 { continue }
+
          a = rune(x[0])
+         if utf8.RuneCountInString(buffer) >= maxLength - 1 { 
+            buffer += string(a)
+            break 
+         }
 
       }
 
-      readLineOut <- string(buffer)
+      readLineOut <- buffer
 
       // Reset buffer
       isReadLine = false
-      buffer = []rune{}
 
       // Recursive call
       return ReadByte()
@@ -65,9 +73,11 @@ func ReadByte() rune {
 	return a
 }
 
-func ReadLine(display bool) chan string {
+func ReadLine(display bool, max int) string {
    isReadLine = true
    isDisplayLine = display
+   maxLength = max
 
-	return readLineOut
+
+	return <- readLineOut
 }

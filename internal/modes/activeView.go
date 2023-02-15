@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/muesli/termenv"
-
 	// "waelder/internal/language"
 	ds "waelder/internal/datastructures"
 	"waelder/internal/renderer"
@@ -22,7 +20,6 @@ var lastBlockSave int = -1
 
 // View method
 func activeView(
-	output *termenv.Output,
 	d ds.Data,
 	windowHeight int,
 	windowWidth int,
@@ -120,7 +117,6 @@ func drawLine(
          }
 
       }
-
       charName = renderer.GenerateNode(name, style)
    }
 

@@ -7,8 +7,6 @@
 package modes
 
 import (
-	"github.com/muesli/termenv"
-
 	ds "waelder/internal/datastructures"
 	"waelder/internal/renderer"
 )
@@ -24,7 +22,7 @@ const (
 )
 
 
-var ModeLookup = map[Mode]func(*termenv.Output, ds.Data, int, int) renderer.RenderField{
+var ModeLookup = map[Mode]func(ds.Data, int, int) renderer.RenderField{
 	ActiveMode: activeView,
 	ActionMode: actionView,
    MdViewMode: mdView,

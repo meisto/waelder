@@ -297,7 +297,7 @@ func getAttack(
       layout.DisplayPopup(layouts.NewPopupField(x,y, content))
 
       // Try to cast string to int
-      n, err := strconv.Atoi(<- wio.ReadLine(true))
+      n, err := strconv.Atoi(wio.ReadLine(true, 10))
       for err != nil || n < 0 || n > 1000 {
          content = renderer.GenerateField(
             []renderer.RenderLine{
@@ -308,7 +308,7 @@ func getAttack(
             },
          )
          layout.DisplayPopup(layouts.NewPopupField(x, y, content))
-         n, err = strconv.Atoi(<- wio.ReadLine(true))
+         n, err = strconv.Atoi(wio.ReadLine(true, 10))
       }
       damage = n
    } 

@@ -174,7 +174,7 @@ func (f *Field) UpdateContent(d ds.Data) {
 
  
    if f.mode != modes.NoMode {
-      f.content = modes.ModeLookup[f.mode](f.output, d, h, w)
+      f.content = modes.ModeLookup[f.mode](d, h, w)
    }
 }
 
